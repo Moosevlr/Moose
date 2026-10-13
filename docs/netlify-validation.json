@@ -1,0 +1,231 @@
+{
+  "url": "https://starlit-khapse-197f07.netlify.app/",
+  "checked_at": "2026-10-13T20:45:40.064Z",
+  "compared_local_commit": "108bdc5a8e853accec73a309fc2ccaacb2a2a8f0",
+  "transport": "HTTPS responses fetched by curl with TLS verified and fulfilled at the original browser origin. Native Chromium HTTPS failed ERR_CERT_AUTHORITY_INVALID; no validation bypass, authentication, or cookie access.",
+  "fixture": "Synthetic valid .dssave with one small text file. No game ROM or real PS2 progress.",
+  "targets": [
+    {
+      "name": "netlify-desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "checks": [
+        {
+          "name": "UI, readiness, Nova aba, isolation and layout",
+          "passed": true
+        },
+        {
+          "name": "Invalid file cannot start a game",
+          "passed": true
+        },
+        {
+          "name": "Key swap, persistence and restore",
+          "passed": true
+        },
+        {
+          "name": "Real core initializes without ISO; diagnostic is ready",
+          "passed": true
+        },
+        {
+          "name": "Empty card cannot download or request confirmation",
+          "passed": true
+        },
+        {
+          "name": "Import synthetic SAVE and confirm delayed IndexedDB backup",
+          "passed": true
+        },
+        {
+          "name": "SAVE import/download preserves bytes; confirmation is explicit",
+          "passed": true
+        },
+        {
+          "name": "Reload discovers IndexedDB backup and restores it explicitly",
+          "passed": true
+        },
+        {
+          "name": "Recovered SAVE survives attachment to real core and export",
+          "passed": true
+        },
+        {
+          "name": "Delete backup requires confirmation and preserves active SAVE",
+          "passed": true
+        }
+      ],
+      "page_errors": [],
+      "network_failures": [],
+      "expected_console_error": "Unsupported file was rejected intentionally.",
+      "core_state": "ready"
+    },
+    {
+      "name": "netlify-mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "checks": [
+        {
+          "name": "UI, readiness, Nova aba, isolation and layout",
+          "passed": true
+        },
+        {
+          "name": "Invalid file cannot start a game",
+          "passed": true
+        },
+        {
+          "name": "Key swap, persistence and restore",
+          "passed": true
+        },
+        {
+          "name": "Real core initializes without ISO; diagnostic is ready",
+          "passed": true
+        },
+        {
+          "name": "Empty card cannot download or request confirmation",
+          "passed": true
+        },
+        {
+          "name": "Import synthetic SAVE and confirm delayed IndexedDB backup",
+          "passed": true
+        },
+        {
+          "name": "SAVE import/download preserves bytes; confirmation is explicit",
+          "passed": true
+        },
+        {
+          "name": "Reload discovers IndexedDB backup and restores it explicitly",
+          "passed": true
+        },
+        {
+          "name": "Recovered SAVE survives attachment to real core and export",
+          "passed": true
+        },
+        {
+          "name": "Delete backup requires confirmation and preserves active SAVE",
+          "passed": true
+        }
+      ],
+      "page_errors": [],
+      "network_failures": [],
+      "expected_console_error": "Unsupported file was rejected intentionally.",
+      "core_state": "ready"
+    }
+  ],
+  "assets": [
+    {
+      "path": "/assets/index-Dy5JLOkn.js",
+      "status": "200",
+      "exit_code": 0,
+      "headers": {
+        "cache-control": "public,max-age=0,must-revalidate",
+        "content-type": "application/javascript; charset=UTF-8",
+        "cross-origin-embedder-policy": "require-corp",
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-resource-policy": "same-origin"
+      },
+      "error": "",
+      "bytes": 254018,
+      "sha256": "ee0c67ac4032420b856a5e82e000a7ef6783dc8ccbcecc117d38c53c036557e3",
+      "matches_local": true
+    },
+    {
+      "path": "/assets/index-8mW09xOO.css",
+      "status": "200",
+      "exit_code": 0,
+      "headers": {
+        "cache-control": "public,max-age=0,must-revalidate",
+        "content-type": "text/css; charset=UTF-8",
+        "cross-origin-embedder-policy": "require-corp",
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-resource-policy": "same-origin"
+      },
+      "error": "",
+      "bytes": 113756,
+      "sha256": "6a6e43025b68a416b05392c0b3e1da0a22aa93b9aca37ed9ccdecf61201b64e4",
+      "matches_local": true
+    },
+    {
+      "path": "/core/Play.wasm",
+      "status": "200",
+      "exit_code": 0,
+      "headers": {
+        "cache-control": "public,max-age=0,must-revalidate",
+        "content-type": "application/wasm",
+        "cross-origin-embedder-policy": "require-corp",
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-resource-policy": "same-origin"
+      },
+      "error": "",
+      "bytes": 2211611,
+      "sha256": "5c6ace637a23f3416a8105d1a07786631994e8dfe34d603a9f62c3b47c47f1a2",
+      "matches_local": true
+    },
+    {
+      "path": "/core/Play.js",
+      "status": "200",
+      "exit_code": 0,
+      "headers": {
+        "cache-control": "public,max-age=0,must-revalidate",
+        "content-type": "text/javascript; charset=utf-8",
+        "cross-origin-embedder-policy": "require-corp",
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-resource-policy": "same-origin"
+      },
+      "error": "",
+      "bytes": 206594,
+      "sha256": "5599ff16ae5e3534f9b779736aedfa20661821d57be7f03e587e31ef8d090317",
+      "matches_local": true
+    },
+    {
+      "path": "/core/Play-loader.mjs",
+      "status": "200",
+      "exit_code": 0,
+      "headers": {
+        "cache-control": "public,max-age=0,must-revalidate",
+        "content-type": "text/javascript; charset=utf-8",
+        "cross-origin-embedder-policy": "require-corp",
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-resource-policy": "same-origin"
+      },
+      "error": "",
+      "bytes": 349,
+      "sha256": "bc85829d5ec377d3a53700aeaeacbd5a552e4b2f45ad64400d7b05c7e3f82412",
+      "matches_local": true
+    },
+    {
+      "path": "/core/License.txt",
+      "status": "200",
+      "exit_code": 0,
+      "headers": {
+        "cache-control": "public,max-age=0,must-revalidate",
+        "content-type": "text/plain; charset=UTF-8",
+        "cross-origin-embedder-policy": "require-corp",
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-resource-policy": "same-origin"
+      },
+      "error": "",
+      "bytes": 1336,
+      "sha256": "e9089da5950600267bb657503aba6eb59cb679b455c2997d341d83144144daab",
+      "matches_local": true
+    },
+    {
+      "path": "/favicon.svg",
+      "status": "200",
+      "exit_code": 0,
+      "headers": {
+        "cache-control": "public,max-age=0,must-revalidate",
+        "content-type": "image/svg+xml",
+        "cross-origin-embedder-policy": "require-corp",
+        "cross-origin-opener-policy": "same-origin",
+        "cross-origin-resource-policy": "same-origin"
+      },
+      "error": "",
+      "bytes": 415,
+      "sha256": "c3fc3f1b38ed37b449ff085fd293dea9b5ce8da7e215e3e292d273a82ee3309c",
+      "matches_local": true
+    }
+  ],
+  "automatic_deployment": "A new commit will be verified separately via build-info.json.",
+  "limits": "No game ROM, real game progress, physical gamepad, or native Chromium HTTPS transport tested."
+}

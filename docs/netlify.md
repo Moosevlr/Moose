@@ -1,22 +1,28 @@
 # Publicação automática no Netlify
 
-O código e as atualizações ficam em `Moosevlr/Moose`, branch `digital-station-upgrades`. O Netlify deve ser conectado diretamente a esse repositório existente. A partir daí, novos commits nessa branch iniciam a instalação, os testes, a compilação e a publicação. Uma falha impede a publicação da nova versão.
+O código e as atualizações ficam em `Moosevlr/Moose`, branch `digital-station-upgrades`. O usuário conectou o site existente a esse repositório pelo Netlify. Com essa branch de produção, novos commits iniciam a instalação, os testes, a compilação e a publicação. Uma falha impede a publicação da nova versão.
 
-## Conexão inicial, uma única vez
+## Endereço principal
 
-1. Abra https://app.netlify.com/start e entre na sua conta Netlify. Se precisar criar uma conta, pode usar a opção de cadastro com GitHub.
-2. Escolha importar um projeto existente a partir do GitHub. Autorize o acesso ao repositório `Moosevlr/Moose` e selecione-o.
-3. Use `digital-station-upgrades` como branch de produção. Não crie uma cópia do repositório a partir de um template: este chat continuará enviando alterações ao repositório existente.
+Use https://starlit-khapse-197f07.netlify.app/ como endereço permanente. A página e os arquivos do emulador responderam com 200 e os arquivos publicados foram comparados com a compilação local. Os cabeçalhos COOP/COEP/CORP e o MIME de WebAssembly foram confirmados nas respostas reais.
+
+URLs com um identificador antes de `--starlit-khapse-197f07.netlify.app` pertencem a um deploy específico. Use a URL principal para acompanhar novas versões e manter o mesmo armazenamento local de SAVE.
+
+## Configuração do site existente
+
+1. Abra https://app.netlify.com/ e selecione o site existente `starlit-khapse-197f07`.
+2. Confira a conexão Git desse site com `Moosevlr/Moose`. Se precisar refazer a conexão, autorize esse repositório nas configurações de implantação do próprio site.
+3. Use `digital-station-upgrades` como branch de produção. Este chat continuará enviando alterações ao repositório existente.
 4. Mantenha o diretório base na raiz do repositório. As configurações de `netlify.toml` são:
 
    - Comando de build: `npm ci --include=dev --no-audit --no-fund && npm test && npm run build`.
    - Diretório publicado: `dist`.
    - Node.js: `24`.
 
-5. Inicie a publicação e aguarde o primeiro build terminar. O Netlify fornecerá a URL do site, terminada em `.netlify.app`; nenhuma URL foi reservada ou criada por este repositório.
-6. Use a URL principal do projeto como endereço permanente. Pode ajustar o nome do site antes de começar a usar seus SAVEs, se o nome escolhido estiver disponível.
+5. Mantenha a publicação automática por Git ativa. Depois de um novo commit nessa branch, confira a execução do build e o commit em `/build-info.json` na URL principal.
+6. Preserve o site e a URL principal para manter o armazenamento local de SAVE na mesma origem.
 
-A conexão inicial exige autorização da sua conta Netlify/GitHub no navegador. Este ambiente não possui uma sessão Netlify ou token de implantação. Não é preciso entregar tokens a este chat para usar a integração Git do Netlify.
+A conexão Git exige autorização da sua conta Netlify/GitHub no navegador e já foi feita pelo usuário. Este ambiente não possui uma sessão Netlify ou token de implantação. Não é preciso entregar tokens a este chat para usar a integração Git do Netlify.
 
 ## Trabalho contínuo neste chat
 
@@ -25,6 +31,8 @@ A conexão inicial exige autorização da sua conta Netlify/GitHub no navegador.
 3. O Netlify detecta o commit e executa o comando configurado. A URL principal passa a servir a versão nova depois que a publicação terminar.
 
 Não é necessário transferir ZIPs ou voltar ao chat original do Sites. Esta automatização só começa depois de conectar o repositório ao projeto Netlify. O endereço antigo no Sites continua sendo uma publicação separada.
+
+Cada build produz `/build-info.json` com a versão da aplicação e o commit usado na compilação. O Netlify fornece `COMMIT_REF`; builds locais consultam o HEAD do Git. Esse arquivo público não contém credenciais ou arquivos do usuário e permite comparar a versão publicada com a branch, mesmo quando não há status de deploy no GitHub. Uma versão sem informação Git usa `commit: null` e não deve ser descrita como publicação verificada de um commit.
 
 ## Requisitos do emulador
 
@@ -44,6 +52,10 @@ Depois que houver uma URL real, confirme:
 4. Um SAVE sintético pode ser importado, guardado como backup, recuperado após reload e exportado sem alterar os bytes.
 
 Os checks locais comprovam a preparação do código. Eles não comprovam a criação de uma conta, conexão Git, execução de um build remoto ou publicação no Netlify. Registre o resultado remoto quando essas etapas forem concluídas.
+
+Em 13/10/2026, a URL principal passou em 10 verificações desktop e 10 mobile. O núcleo real chegou a `ready` sem ISO; um SAVE sintético manteve os dados em importação, exportação, backup, reload e recuperação. Não houve erro de página ou falha de requisição dos recursos da aplicação. Sete arquivos publicados foram comparados byte a byte com a distribuição local. O resumo está em `docs/netlify-validation.json`.
+
+O Chromium deste ambiente não reconheceu a autoridade do certificado HTTPS do proxy. Os testes funcionais usaram os bytes e cabeçalhos públicos obtidos por `curl` com TLS verificado, entregues ao navegador na origem original. Nenhuma verificação TLS foi desativada. Isso comprova o funcionamento com os arquivos publicados, mas não o transporte HTTPS nativo do Chromium deste ambiente. Não foram testados ROMs ou gamepads físicos.
 
 ## Transferir o progresso do Sites
 

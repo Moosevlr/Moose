@@ -6,9 +6,11 @@ O código-fonte original do projeto Sites não estava disponível. `src/DigitalS
 
 ## Publicação automática
 
-O projeto está preparado para o Netlify, com testes antes da publicação, Node.js 24 e os cabeçalhos necessários ao emulador. Conecte o repositório GitHub existente `Moosevlr/Moose` e a branch `digital-station-upgrades` uma única vez. Os próximos commits nessa branch serão publicados automaticamente depois que o build passar.
+O projeto usa o Netlify, com testes antes da publicação, Node.js 24 e os cabeçalhos necessários ao emulador. O site existente está conectado ao GitHub `Moosevlr/Moose`; mantenha `digital-station-upgrades` como branch de produção para publicar os próximos commits depois que o build passar.
 
-Veja [a conexão inicial e o fluxo contínuo](docs/netlify.md). O Netlify fornecerá o novo endereço após conectar o repositório e concluir a primeira publicação. Essa preparação não cria uma conta ou um site por conta própria.
+Endereço principal: https://starlit-khapse-197f07.netlify.app/. A versão publicada pode ser conferida em `/build-info.json`.
+
+Veja [as configurações e o fluxo contínuo](docs/netlify.md). Preserve esse site e seu endereço para manter os backups na mesma origem.
 
 ## Desenvolvimento
 
