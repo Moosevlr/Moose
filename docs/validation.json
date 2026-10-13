@@ -1,0 +1,38 @@
+{
+  "source": "https://digital-station.moose-zx.chatgpt.site/",
+  "unit_tests": {
+    "total": 28,
+    "passed": 28,
+    "failed": 0,
+    "skipped": 0
+  },
+  "browser_targets": [
+    {
+      "name": "dev-desktop",
+      "total": 10,
+      "passed": 10,
+      "page_errors": [],
+      "network_failures": []
+    },
+    {
+      "name": "dev-mobile",
+      "total": 10,
+      "passed": 10,
+      "page_errors": [],
+      "network_failures": []
+    },
+    {
+      "name": "production-desktop",
+      "total": 8,
+      "passed": 8,
+      "page_errors": [],
+      "network_failures": []
+    }
+  ],
+  "corrupt_backup_cleanup": true,
+  "core_prepared_without_iso": true,
+  "save_fixture": "synthetic; no real game progress",
+  "core_originals_unchanged": true,
+  "sites_publication_updated": false,
+  "transport": "Native Chromium HTTP to loopback; no TLS overrides, authentication, or cookie access."
+}

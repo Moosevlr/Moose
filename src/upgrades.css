@@ -1,0 +1,33 @@
+/* Additions are kept separate from the recovered published styles. */
+.browser-readiness {
+  max-width: 1200px;
+  margin: 0 auto 22px;
+  padding: 14px 18px;
+  border: 1px solid #2f3346;
+  border-radius: 12px;
+  background: #11131f;
+  color: #d9deef;
+  font-size: 13px;
+}
+.browser-readiness summary { cursor: pointer; display: flex; gap: 16px; justify-content: space-between; font-weight: 600; }
+.browser-readiness summary span { color: #b4afff; font-size: 12px; text-align: right; }
+.browser-readiness ul { display: grid; gap: 8px; margin: 16px 0; padding: 0; list-style: none; }
+.browser-readiness li { display: flex; justify-content: space-between; gap: 12px; }
+.browser-readiness li[data-ready="true"] strong { color: #a1ddbe; }
+.browser-readiness li[data-ready="false"] strong { color: #ffbd9b; }
+.browser-readiness p, .backup-help { color: #aeb5c9; line-height: 1.6; margin-top: 12px; }
+.backup-status { margin-top: 12px; font-size: 12px; color: #a1ddbe; line-height: 1.6; overflow-wrap: anywhere; }
+.backup-status[data-state="error"] { color: #ffbd9b; }
+.backup-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.backup-actions button { white-space: normal; text-align: left; }
+#confirm-save-download { margin-top: 8px; }
+.load-progress { width: 100%; height: 6px; margin-top: 10px; accent-color: #aca2ff; }
+.header-tools #open-tab { display: inline-flex; }
+@media (max-width: 540px) {
+  .browser-readiness { padding: 12px; }
+  .browser-readiness summary { gap: 8px; }
+  .header-tools { gap: 8px; }
+  .header-tools #open-tab { display: inline-flex; font-size: 11px; }
+  .header-tools .experimental { display: none; }
+  .brand { min-width: 0; }
+}

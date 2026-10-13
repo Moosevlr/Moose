@@ -1,0 +1,30 @@
+{
+  "source": "https://digital-station.moose-zx.chatgpt.site/",
+  "coreVersion": "Play! 0.77-12-g83700b2c",
+  "assets": [
+    {
+      "file": "core/Play.js",
+      "sha256": "5599ff16ae5e3534f9b779736aedfa20661821d57be7f03e587e31ef8d090317",
+      "bytes": 206594,
+      "matches_published": true
+    },
+    {
+      "file": "core/Play.wasm",
+      "sha256": "5c6ace637a23f3416a8105d1a07786631994e8dfe34d603a9f62c3b47c47f1a2",
+      "bytes": 2211611,
+      "matches_published": true
+    },
+    {
+      "file": "core/Play-loader.mjs",
+      "sha256": "bc85829d5ec377d3a53700aeaeacbd5a552e4b2f45ad64400d7b05c7e3f82412",
+      "bytes": 349,
+      "matches_published": true
+    },
+    {
+      "file": "core/License.txt",
+      "sha256": "e9089da5950600267bb657503aba6eb59cb679b455c2997d341d83144144daab",
+      "bytes": 1336,
+      "matches_published": true
+    }
+  ]
+}

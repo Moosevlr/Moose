@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.vite/
+test-results/
+*.iso
+*.chd
+*.cso
+*.isz
+*.bin
+*.elf
+*.dssave
