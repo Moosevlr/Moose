@@ -1,0 +1,9 @@
+# Netlify publishes commits from the production branch selected during import.
+# Response headers are defined once in public/_headers and copied to dist.
+[build]
+  command = "npm ci --include=dev --no-audit --no-fund && npm test && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+  NPM_FLAGS = "--include=dev --no-audit --no-fund"

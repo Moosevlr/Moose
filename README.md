@@ -4,6 +4,12 @@ Versão de desenvolvimento recuperada da publicação de Digital Station e atual
 
 O código-fonte original do projeto Sites não estava disponível. `src/DigitalStation.jsx` foi recuperado do módulo JavaScript público e adaptado para uma aplicação React/Vite reproduzível. Esta pasta é uma cópia local; alterações nela não modificam automaticamente a publicação no Sites.
 
+## Publicação automática
+
+O projeto está preparado para o Netlify, com testes antes da publicação, Node.js 24 e os cabeçalhos necessários ao emulador. Conecte o repositório GitHub existente `Moosevlr/Moose` e a branch `digital-station-upgrades` uma única vez. Os próximos commits nessa branch serão publicados automaticamente depois que o build passar.
+
+Veja [a conexão inicial e o fluxo contínuo](docs/netlify.md). O Netlify fornecerá o novo endereço após conectar o repositório e concluir a primeira publicação. Essa preparação não cria uma conta ou um site por conta própria.
+
 ## Desenvolvimento
 
 Requer Node.js 22.12 ou superior; este ambiente usa Node.js 24. Use o checkout existente em `/workspace/Moose`. As tarefas de nuvem já são isoladas; não crie worktrees sem solicitação explícita.
