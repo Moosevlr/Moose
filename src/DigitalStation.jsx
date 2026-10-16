@@ -657,11 +657,7 @@ function Se({
     backupError = null,
     pendingDownloadVersion = null,
     B = r(() => {
-      !S &&
-        F === null &&
-        (F = requestAnimationFrame(() => {
-          ((F = null), we());
-        }));
+      queueSaveStatus();
       scheduleBackup();
     }),
     V = me({ on: J, releaseAll: Q }),
@@ -691,7 +687,7 @@ function Se({
   function G(e) {
     (H.push(`${new Date().toISOString()} · ${String(e).slice(0, 700)}`),
       H.length > 40 && H.shift(),
-      U && (U.textContent = W()));
+      U && i(`diagnostic-panel`)?.open && (U.textContent = W()));
   }
   function K(e) {
     ((O = e),
@@ -723,6 +719,15 @@ function Se({
   }
   function Ce() {
     (Q(), w !== null && cancelAnimationFrame(w), (w = null));
+  }
+  function resumeSessionUi() {
+    if (S || !x || v === `error` || document.hidden || !document.hasFocus()) return;
+    // Hidden tabs have a different browser scheduling budget. Start a fresh
+    // measurement window instead of displaying a background-averaged FPS.
+    C = performance.now();
+    try { _.clearStats(); } catch { /* Me reports a persistent core error. */ }
+    te.textContent = `— FPS`;
+    q();
   }
   function J(e, t, n, r) {
     (e.addEventListener(t, n, r),
@@ -767,6 +772,14 @@ function Se({
     if (U) U.textContent = W();
     updateBackupControls();
   }
+  function queueSaveStatus() {
+    if (S || F !== null) return;
+    F = requestAnimationFrame(() => {
+      F = null;
+      we();
+      updateBackupControls();
+    });
+  }
   function updateBackupControls() {
     const busy = M || x || [`validating`, `loading`, `starting`, `error`].includes(v);
     const recover = i(`recover-backup`);
@@ -795,7 +808,7 @@ function Se({
     if (!backupNeedsWrite) return;
     clearTimeout(backupTimer);
     backupTimer = setTimeout(flushBackup, 1200);
-    updateBackupControls();
+    queueSaveStatus();
   }
   async function flushBackup() {
     backupTimer = null;
@@ -806,8 +819,8 @@ function Se({
     backupBusy = true;
     updateBackupControls();
     try {
-      if (!B.capture().files.length) return;
-      const snapshot = await B.export(g?.name || backupRecord?.game || ``);
+      const snapshot = await B.export(g?.name || backupRecord?.game || ``, { allowEmpty: true });
+      if (!snapshot) return;
       if (S || backupRemoving || epoch !== backupEpoch) return;
       const record = await backupStore.writeSnapshot({
         blob: snapshot.blob,
@@ -1268,6 +1281,9 @@ function Se({
         $(e);
       }
     }),
+    J(i(`diagnostic-panel`), `toggle`, () => {
+      if (i(`diagnostic-panel`).open && U) U.textContent = W();
+    }),
     ge &&
       J(ge, `click`, async () => {
         U && (U.textContent = W());
@@ -1359,9 +1375,9 @@ function Se({
       !0,
     );
   (J(window, `blur`, Ce),
-    J(window, `focus`, q),
+    J(window, `focus`, resumeSessionUi),
     J(document, `visibilitychange`, () => {
-      document.hidden ? Ce() : q();
+      document.hidden ? Ce() : resumeSessionUi();
     }));
   for (let e of document.querySelectorAll(`[data-code]`)) {
     let t = `touch-` + e.dataset.code;

@@ -338,6 +338,37 @@ test('save export/import is refused while a writable card stream remains open', 
   assert.equal((await cards.export()).fileCount, 1);
 });
 
+test('export captures each file once, keeps independent bytes, and does not notify read-only closes', async () => {
+  const { cards, fs } = makeCards();
+  fs.writeFile(cardPath('mc0/current'), new Uint8Array([9, 8, 7]));
+  const readFile = fs.readFile.bind(fs);
+  let reads = 0;
+  let notifications = 0;
+  fs.readFile = (...args) => { reads += 1; return readFile(...args); };
+  cards.onChange = () => { notifications += 1; };
+  const originalVersion = cards.version;
+  const pending = cards.export('Test', { allowEmpty: true });
+  // Capturing is synchronous; later filesystem mutations cannot alter the
+  // bytes already handed to the codec, even when encoding awaits a worker.
+  fs.node(cardPath('mc0/current')).data.fill(1);
+  const exported = await pending;
+  assert.equal(reads, 1);
+  assert.equal(exported.version, originalVersion);
+  assert.deepEqual(bytes((await decodeSave(exported.blob)).files[0].bytes), [9, 8, 7]);
+  const read = fs.open(cardPath('mc0/current'), 'r');
+  fs.close(read);
+  assert.equal(notifications, 0);
+  const write = fs.open(cardPath('mc0/current'), 'r+');
+  fs.close(write);
+  assert.equal(notifications, 1, 'closing a writable stream still wakes a deferred backup');
+});
+
+test('allowEmpty skips automatic backup without weakening explicit download errors', async () => {
+  const { cards } = makeCards();
+  assert.equal(await cards.export('', { allowEmpty: true }), null);
+  await assert.rejects(cards.export(), /ainda está vazio/);
+});
+
 test('failed restore rolls back previous cards and restores dirty tracking', async () => {
   const incoming = makeCards();
   incoming.fs.writeFile(cardPath('mc0/new'), new Uint8Array([1, 2]));

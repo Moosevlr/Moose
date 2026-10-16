@@ -36,6 +36,7 @@ npm run preview -- --port 4173 --strictPort
 
 ## Melhorias
 
+- Fluidez: processamento pesado de SAVE em Worker dedicado, uma captura por backup e atualizações de interface agrupadas. O sincronismo nativo do jogo e a resolução interna 1× foram preservados. Veja [a revisão de fluidez](docs/fluidity.md).
 - Backup automático dos cartões no IndexedDB, confirmado somente após a transação completar. Recuperação explícita antes de iniciar o jogo e opção de exclusão do backup.
 - O backup guarda somente o SAVE, nunca a ISO. A gravação é adiada enquanto o cartão estiver aberto para escrita. O último backup válido é preservado em erros de quota, validação ou transação.
 - Download de SAVE exige confirmação explícita do usuário para retirar o aviso de progresso sem cópia portátil. Iniciar um download não comprova que o arquivo foi guardado.
@@ -70,6 +71,6 @@ A edição e a publicação do projeto original no Sites não foram executadas p
 
 ## Evidências e limitações
 
-Veja `docs/review.md` para a revisão e os resultados de validação. `docs/recovered-assets.json` registra a origem e os hashes dos arquivos do núcleo recuperados sem alteração. A licença de Play! está em `public/core/License.txt`.
+Veja `docs/review.md` e `docs/fluidity.md` para as revisões e os resultados de validação. `docs/recovered-assets.json` registra a origem e os hashes dos arquivos do núcleo recuperados sem alteração. A licença de Play! está em `public/core/License.txt`.
 
 Não foram fornecidos jogos. Testes de disco e SAVE usam dados sintéticos; preparar o núcleo sem ISO não comprova a compatibilidade de um jogo. Gamepad físico e desempenho com jogos reais precisam ser avaliados com arquivos e dispositivos do usuário.

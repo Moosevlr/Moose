@@ -1,4 +1,4 @@
-import { decodeSave } from '../emulator/memory-cards.js';
+import { validateSave } from '../emulator/save-codec-client.js';
 
 const DATABASE_NAME = 'digital-station-local-v1';
 const STORE_NAME = 'backups';
@@ -143,7 +143,7 @@ export function createBackupStore({ indexedDB = globalThis.indexedDB } = {}) {
         const stored = await transaction(connection, 'readonly', (store) => store.get(LATEST_KEY));
         if (stored === undefined) return null;
         const snapshot = validateMetadata(stored);
-        await decodeSave(snapshot.blob);
+        await validateSave(snapshot.blob);
         assertActive();
         return snapshot;
       });
@@ -152,7 +152,7 @@ export function createBackupStore({ indexedDB = globalThis.indexedDB } = {}) {
     writeSnapshot(snapshot) {
       return enqueue(async () => {
         const validated = validateMetadata(snapshot);
-        await decodeSave(validated.blob);
+        await validateSave(validated.blob);
         assertActive();
         const connection = await openDatabase();
         await transaction(connection, 'readwrite', (store) => store.put(validated, LATEST_KEY));

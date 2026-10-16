@@ -1,91 +1,12 @@
+import { MAX_CARD_BYTES, MAX_ENTRIES, validPath, validateSnapshot } from './save-codec.js';
+import { decodeSave, encodeSaveSnapshot } from './save-codec-client.js';
+
+export { decodeSave } from './save-codec-client.js';
 export const MEMORY_CARD_ROOT = '/home/web_user/.local/share/Play Data Files/vfs';
-const SAVE_FORMAT = 'digital-station-save';
-const MAX_CARD_BYTES = 32 * 1024 * 1024;
-const MAX_ENTRIES = 4096;
 const cardPath = (path) => `${MEMORY_CARD_ROOT}/${path}`;
 const isCardPath = (path) => typeof path === 'string' && ['mc0', 'mc1'].some(
   (card) => path === cardPath(card) || path.startsWith(`${cardPath(card)}/`),
 );
-const validPath = (path) => typeof path === 'string' && path.length <= 512 &&
-  /^(mc0|mc1)(\/[^/]+)*$/.test(path) && path.split('/').every(
-    (part) => part !== '.' && part !== '..' && !/[\\\x00-\x1f\x7f]/.test(part),
-  );
-
-function validateStructure(cards) {
-  if (!cards || !Array.isArray(cards.directories) || !Array.isArray(cards.files) ||
-      cards.directories.length + cards.files.length > MAX_ENTRIES) {
-    throw new Error('A estrutura do SAVE é inválida.');
-  }
-  const paths = new Set();
-  for (const path of [...cards.directories, ...cards.files.map((file) => file?.path)]) {
-    if (!validPath(path) || paths.has(path)) throw new Error('O SAVE contém um caminho inválido ou repetido.');
-    paths.add(path);
-  }
-  const directories = new Set(cards.directories);
-  if (!directories.has('mc0') || !directories.has('mc1')) throw new Error('Os cartões do SAVE estão incompletos.');
-  for (const path of paths) {
-    const parent = path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : null;
-    if (parent && !directories.has(parent)) throw new Error('O SAVE contém uma pasta incompleta.');
-  }
-}
-
-function encodeBase64(bytes) {
-  let binary = '';
-  for (let index = 0; index < bytes.length; index += 16384) {
-    binary += String.fromCharCode(...bytes.subarray(index, index + 16384));
-  }
-  return btoa(binary);
-}
-
-function decodeBase64(data) {
-  if (typeof data !== 'string' || data.length > Math.ceil(MAX_CARD_BYTES / 3) * 4 ||
-      data.length % 4 || !/^[A-Za-z0-9+/]*={0,2}$/.test(data)) {
-    throw new Error('O SAVE contém dados inválidos.');
-  }
-  return Uint8Array.from(atob(data), (character) => character.charCodeAt(0));
-}
-
-async function checksum(cards) {
-  const bytes = new TextEncoder().encode(JSON.stringify(cards));
-  const digest = await crypto.subtle.digest('SHA-256', bytes);
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
-}
-
-export async function decodeSave(file) {
-  if (!file || !Number.isSafeInteger(file.size) || file.size < 0 || file.size > 48 * 1024 * 1024 ||
-      typeof file.text !== 'function') {
-    throw new Error('Escolha um SAVE do Digital Station com até 48 MB.');
-  }
-  let save;
-  try { save = JSON.parse(await file.text()); } catch {
-    throw new Error('Não reconheci este SAVE. Escolha um arquivo .dssave baixado neste ambiente.');
-  }
-  if (save?.format !== SAVE_FORMAT || save.version !== 1) {
-    throw new Error('Formato de SAVE incompatível. Use um arquivo .dssave do Digital Station.');
-  }
-  validateStructure(save.cards);
-  if (await checksum(save.cards) !== save.checksum) {
-    throw new Error('O SAVE está corrompido ou foi alterado. O cartão atual foi preservado.');
-  }
-  let total = 0;
-  const files = save.cards.files.map((file) => {
-    const bytes = decodeBase64(file.data);
-    total += bytes.byteLength;
-    if (total > MAX_CARD_BYTES) throw new Error('O conteúdo do SAVE excede 32 MB.');
-    return { path: file.path, bytes };
-  });
-  return { directories: [...save.cards.directories].sort((a, b) => a.length - b.length), files };
-}
-
-function validateSnapshot(snapshot) {
-  validateStructure(snapshot);
-  let total = 0;
-  for (const file of snapshot.files) {
-    if (!(file.bytes instanceof Uint8Array)) throw new Error('O SAVE contém dados inválidos.');
-    total += file.bytes.byteLength;
-    if (total > MAX_CARD_BYTES) throw new Error('O conteúdo do SAVE excede 32 MB.');
-  }
-}
 
 export class MemoryCards {
   constructor(onChange = () => {}) {
@@ -181,7 +102,9 @@ export class MemoryCards {
     const originalClose = this.FS.close;
     if (typeof originalClose === 'function') {
       const wrappedClose = (stream) => {
-        const card = isCardPath(stream?.path);
+        // close() clears the descriptor; read-only closes (including our own
+        // capture reads) do not change the card or require another backup.
+        const card = (stream?.flags & 3) !== 0 && isCardPath(stream?.path);
         const result = originalClose.call(this.FS, stream);
         if (card) this.onChange(this);
         return result;
@@ -207,7 +130,9 @@ export class MemoryCards {
       } else if (this.FS.isFile(stat.mode)) {
         total += stat.size;
         if (total > MAX_CARD_BYTES) throw new Error('O cartão excedeu o tamanho permitido para exportação.');
-        snapshot.files.push({ path, bytes: this.FS.readFile(absolute).slice() });
+        // Emscripten FS.readFile allocates and fills a fresh Uint8Array. Its
+        // buffer is already an independent snapshot, not a view of MEMFS data.
+        snapshot.files.push({ path, bytes: this.FS.readFile(absolute) });
       } else throw new Error('O cartão contém um tipo de arquivo não suportado.');
       if (snapshot.directories.length + snapshot.files.length > MAX_ENTRIES) throw new Error('O cartão contém arquivos demais.');
     };
@@ -246,16 +171,15 @@ export class MemoryCards {
     this.onChange(this);
   }
 
-  async export(game = '') {
+  async export(game = '', { allowEmpty = false } = {}) {
     const version = this.version;
     const snapshot = this.capture();
-    if (!snapshot.files.length) throw new Error('O cartão ainda está vazio. Salve o progresso dentro do jogo antes de baixar o SAVE.');
-    const cards = {
-      directories: snapshot.directories,
-      files: snapshot.files.map((file) => ({ path: file.path, data: encodeBase64(file.bytes) })),
-    };
-    const save = { format: SAVE_FORMAT, version: 1, createdAt: new Date().toISOString(), game: game.slice(0, 200), cards, checksum: await checksum(cards) };
-    return { blob: new Blob([JSON.stringify(save)], { type: 'application/json' }), version, fileCount: snapshot.files.length };
+    if (!snapshot.files.length) {
+      if (allowEmpty) return null;
+      throw new Error('O cartão ainda está vazio. Salve o progresso dentro do jogo antes de baixar o SAVE.');
+    }
+    const encoded = await encodeSaveSnapshot(snapshot, game);
+    return { ...encoded, version };
   }
 
   markDownloaded(version) {

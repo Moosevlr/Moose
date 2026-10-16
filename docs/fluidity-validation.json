@@ -1,0 +1,1508 @@
+{
+  "version": "1.2.0",
+  "date": "2026-10-16",
+  "intent": "Reduce pauses on the UI/audio/presentation thread for broad browser access; preserve native game timing.",
+  "unit_tests": {
+    "passed": 40,
+    "failed": 0,
+    "skipped": 0
+  },
+  "baseline_source": {
+    "capturedUtc": "2026-10-16T17:18:57.989372+00:00",
+    "head": "3d26142041ba431d704ff8281fb189869d04d537",
+    "workingTreeStatus": "",
+    "files": [
+      {
+        "path": "src/emulator/memory-cards.js",
+        "sha256": "bae40778af20379c6a3f4b558efb792c4241966623d6c3f2992e6f2fc9bd98b0",
+        "sameAsHead": true
+      },
+      {
+        "path": "src/storage/save-backup.js",
+        "sha256": "4243c7b7d5c4e1e696bcd9db7830f0371287682251e8ba4cfec8b564d4f30cb2",
+        "sameAsHead": true
+      },
+      {
+        "path": "src/DigitalStation.jsx",
+        "sha256": "4ac873563a52a8ed26dd8b56a0e1de6636033452c095b0f6c7289a2132b195cc",
+        "sameAsHead": true
+      }
+    ]
+  },
+  "candidate_source": {
+    "capturedUtc": "2026-10-16T17:25:36.304886+00:00",
+    "files": [
+      {
+        "path": "src/DigitalStation.jsx",
+        "sha256": "bed9131209d43e0160b3c5784899be5e248057e08f682858196703f051a00c63"
+      },
+      {
+        "path": "src/emulator/memory-cards.js",
+        "sha256": "98ab7344b1e1ee5b8891b7520110fa36b1264fb5d36003a45ecd9f990a823404"
+      },
+      {
+        "path": "src/storage/save-backup.js",
+        "sha256": "d999f6e33030916143fb0cd0cc82b78584221c5e035773bd90f9d6de4fa827c8"
+      },
+      {
+        "path": "src/emulator/save-codec.js",
+        "sha256": "a68d68f617568e7d969e4467bf9186b93fb5a4292e2b2c68eddb7df08ecf237c"
+      },
+      {
+        "path": "src/emulator/save-codec-client.js",
+        "sha256": "1e7f32562d569ade44a4bc5e381b5aee1b2949308129ea1fdc6e6957916bc439"
+      },
+      {
+        "path": "src/emulator/save-codec-worker.js",
+        "sha256": "539af48f50ec6e7d5dac57bceef59e8a1d42fc43968772840bc1655d47d43c04"
+      }
+    ]
+  },
+  "benchmark": {
+    "baseline": {
+      "mode": "baseline",
+      "repeats": 3,
+      "windowMs": 2400,
+      "environment": {
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "hardwareConcurrency": 5,
+        "secureContext": true,
+        "crossOriginIsolated": true,
+        "sharedArrayBuffer": true,
+        "longTasksSupported": true
+      },
+      "method": "Synthetic 8/16 MiB memory-card data in real idle Emscripten FS. UI RAF gaps and browser long tasks measure main-thread responsiveness; no ISO and no emulated-game frame rate is measured. Baseline reproduces its preflight capture plus export plus validated IndexedDB write.",
+      "trials": [
+        {
+          "sizeMiB": 0,
+          "trial": 1,
+          "controlWithoutBackup": true,
+          "sampleElapsedMs": 2399.6349999904633,
+          "operationElapsedMs": 0,
+          "captureDurationsMs": [],
+          "exportEntrySyncMs": null,
+          "exportElapsedMs": null,
+          "indexedDBPipelineElapsedMs": null,
+          "frameIntervals": {
+            "count": 144,
+            "medianMs": 16.664999999999964,
+            "p95Ms": 16.670000000000073,
+            "p99Ms": 16.670000000000073,
+            "maxMs": 16.670000000000073,
+            "gapsOver33ms": 0,
+            "gapsOver50ms": 0
+          },
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0,
+            "entries": []
+          },
+          "result": null,
+          "error": null
+        },
+        {
+          "sizeMiB": 0,
+          "trial": 2,
+          "controlWithoutBackup": true,
+          "sampleElapsedMs": 2399.425000011921,
+          "operationElapsedMs": 0,
+          "captureDurationsMs": [],
+          "exportEntrySyncMs": null,
+          "exportElapsedMs": null,
+          "indexedDBPipelineElapsedMs": null,
+          "frameIntervals": {
+            "count": 144,
+            "medianMs": 16.664999999999964,
+            "p95Ms": 16.670000000000073,
+            "p99Ms": 16.670000000000073,
+            "maxMs": 16.670000000000073,
+            "gapsOver33ms": 0,
+            "gapsOver50ms": 0
+          },
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0,
+            "entries": []
+          },
+          "result": null,
+          "error": null
+        },
+        {
+          "sizeMiB": 0,
+          "trial": 3,
+          "controlWithoutBackup": true,
+          "sampleElapsedMs": 2399.359999984503,
+          "operationElapsedMs": 0,
+          "captureDurationsMs": [],
+          "exportEntrySyncMs": null,
+          "exportElapsedMs": null,
+          "indexedDBPipelineElapsedMs": null,
+          "frameIntervals": {
+            "count": 144,
+            "medianMs": 16.664999999999964,
+            "p95Ms": 16.670000000000073,
+            "p99Ms": 16.670000000000073,
+            "maxMs": 16.670000000000073,
+            "gapsOver33ms": 0,
+            "gapsOver50ms": 0
+          },
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0,
+            "entries": []
+          },
+          "result": null,
+          "error": null
+        },
+        {
+          "sizeMiB": 8,
+          "trial": 1,
+          "controlWithoutBackup": false,
+          "sampleElapsedMs": 2399.7750000059605,
+          "operationElapsedMs": 1047.3100000023842,
+          "captureDurationsMs": [
+            9.060000002384186,
+            5.104999989271164
+          ],
+          "exportEntrySyncMs": 306.205000013113,
+          "exportElapsedMs": 345.4050000011921,
+          "indexedDBPipelineElapsedMs": 692.6450000107288,
+          "frameIntervals": {
+            "count": 86,
+            "medianMs": 16.665000000000873,
+            "p95Ms": 16.670000000000073,
+            "p99Ms": 333.3199999999997,
+            "maxMs": 666.6350000000002,
+            "gapsOver33ms": 2,
+            "gapsOver50ms": 2
+          },
+          "longTasks": {
+            "count": 2,
+            "totalMs": 1031,
+            "maxMs": 676,
+            "entries": [
+              {
+                "start": 10314.145000010729,
+                "duration": 355
+              },
+              {
+                "start": 10681.425000011921,
+                "duration": 676
+              }
+            ]
+          },
+          "result": {
+            "blobBytes": 11185105,
+            "fileCount": 1
+          },
+          "error": null
+        },
+        {
+          "sizeMiB": 8,
+          "trial": 2,
+          "controlWithoutBackup": false,
+          "sampleElapsedMs": 2400.080000013113,
+          "operationElapsedMs": 997.6599999964237,
+          "captureDurationsMs": [
+            6.754999995231628,
+            5.570000022649765
+          ],
+          "exportEntrySyncMs": 298.9650000035763,
+          "exportElapsedMs": 335.4150000214577,
+          "indexedDBPipelineElapsedMs": 655.455000013113,
+          "frameIntervals": {
+            "count": 90,
+            "medianMs": 16.665000000000873,
+            "p95Ms": 16.670000000000073,
+            "p99Ms": 316.65500000000065,
+            "maxMs": 616.6449999999986,
+            "gapsOver33ms": 2,
+            "gapsOver50ms": 2
+          },
+          "longTasks": {
+            "count": 2,
+            "totalMs": 976,
+            "maxMs": 634,
+            "entries": [
+              {
+                "start": 13324.52500000596,
+                "duration": 342
+              },
+              {
+                "start": 13681.230000019073,
+                "duration": 634
+              }
+            ]
+          },
+          "result": {
+            "blobBytes": 11185105,
+            "fileCount": 1
+          },
+          "error": null
+        },
+        {
+          "sizeMiB": 8,
+          "trial": 3,
+          "controlWithoutBackup": false,
+          "sampleElapsedMs": 2399.310000002384,
+          "operationElapsedMs": 987.8100000023842,
+          "captureDurationsMs": [
+            7.430000007152557,
+            6.715000003576279
+          ],
+          "exportEntrySyncMs": 303.25,
+          "exportElapsedMs": 340.2800000011921,
+          "indexedDBPipelineElapsedMs": 640.0750000178814,
+          "frameIntervals": {
+            "count": 90,
+            "medianMs": 16.665000000000873,
+            "p95Ms": 16.67000000000189,
+            "p99Ms": 333.3199999999997,
+            "maxMs": 599.9799999999996,
+            "gapsOver33ms": 2,
+            "gapsOver50ms": 2
+          },
+          "longTasks": {
+            "count": 2,
+            "totalMs": 966,
+            "maxMs": 618,
+            "entries": [
+              {
+                "start": 16330.415000021458,
+                "duration": 348
+              },
+              {
+                "start": 16693.25,
+                "duration": 618
+              }
+            ]
+          },
+          "result": {
+            "blobBytes": 11185105,
+            "fileCount": 1
+          },
+          "error": null
+        },
+        {
+          "sizeMiB": 16,
+          "trial": 1,
+          "controlWithoutBackup": false,
+          "sampleElapsedMs": 2533.985000014305,
+          "operationElapsedMs": 1931.5349999964237,
+          "captureDurationsMs": [
+            10.469999998807907,
+            10.25
+          ],
+          "exportEntrySyncMs": 541.8999999761581,
+          "exportElapsedMs": 605.5799999833107,
+          "indexedDBPipelineElapsedMs": 1315.4600000083447,
+          "frameIntervals": {
+            "count": 42,
+            "medianMs": 16.665000000000873,
+            "p95Ms": 16.67000000000189,
+            "p99Ms": 599.9750000000022,
+            "maxMs": 1266.6150000000016,
+            "gapsOver33ms": 2,
+            "gapsOver50ms": 2
+          },
+          "longTasks": {
+            "count": 2,
+            "totalMs": 1902,
+            "maxMs": 1286,
+            "entries": [
+              {
+                "start": 19340.655000001192,
+                "duration": 616
+              },
+              {
+                "start": 19978.42500001192,
+                "duration": 1286
+              }
+            ]
+          },
+          "result": {
+            "blobBytes": 22369917,
+            "fileCount": 1
+          },
+          "error": null
+        },
+        {
+          "sizeMiB": 16,
+          "trial": 2,
+          "controlWithoutBackup": false,
+          "sampleElapsedMs": 2542.2450000047684,
+          "operationElapsedMs": 1941.714999973774,
+          "captureDurationsMs": [
+            14.360000014305115,
+            13.314999997615814
+          ],
+          "exportEntrySyncMs": 571.9699999988079,
+          "exportElapsedMs": 640.2849999964237,
+          "indexedDBPipelineElapsedMs": 1287.044999986887,
+          "frameIntervals": {
+            "count": 42,
+            "medianMs": 16.665000000000873,
+            "p95Ms": 16.67000000000189,
+            "p99Ms": 649.9749999999985,
+            "maxMs": 1233.2799999999988,
+            "gapsOver33ms": 2,
+            "gapsOver50ms": 2
+          },
+          "longTasks": {
+            "count": 2,
+            "totalMs": 1910,
+            "maxMs": 1256,
+            "entries": [
+              {
+                "start": 22485.115000009537,
+                "duration": 654
+              },
+              {
+                "start": 23160.665000021458,
+                "duration": 1256
+              }
+            ]
+          },
+          "result": {
+            "blobBytes": 22369917,
+            "fileCount": 1
+          },
+          "error": null
+        },
+        {
+          "sizeMiB": 16,
+          "trial": 3,
+          "controlWithoutBackup": false,
+          "sampleElapsedMs": 2561.895000010729,
+          "operationElapsedMs": 1956.044999986887,
+          "captureDurationsMs": [
+            9.884999990463257,
+            14.274999976158142
+          ],
+          "exportEntrySyncMs": 594.0600000023842,
+          "exportElapsedMs": 658,
+          "indexedDBPipelineElapsedMs": 1288.155000001192,
+          "frameIntervals": {
+            "count": 41,
+            "medianMs": 16.665000000000873,
+            "p95Ms": 16.67000000000189,
+            "p99Ms": 649.9749999999985,
+            "maxMs": 1249.9500000000007,
+            "gapsOver33ms": 2,
+            "gapsOver50ms": 2
+          },
+          "longTasks": {
+            "count": 2,
+            "totalMs": 1929,
+            "maxMs": 1261,
+            "entries": [
+              {
+                "start": 25637.630000025034,
+                "duration": 668
+              },
+              {
+                "start": 26326.34500002861,
+                "duration": 1261
+              }
+            ]
+          },
+          "result": {
+            "blobBytes": 22369917,
+            "fileCount": 1
+          },
+          "error": null
+        }
+      ],
+      "browserErrors": [],
+      "consoleWarnings": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "[.WebGL-0x1aa40018bc00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+      ],
+      "workerEvidence": [
+        {
+          "url": "blob:http://127.0.0.1:4197/9dac6657-610c-4bc3-92bf-0ab5d50fffdd",
+          "name": "digital-station-probe",
+          "operations": [],
+          "responses": []
+        },
+        {
+          "url": "blob:http://127.0.0.1:4197/a232caf3-b120-4dbc-8564-c30dab8842cc",
+          "name": "em-pthread",
+          "operations": [],
+          "responses": []
+        },
+        {
+          "url": "blob:http://127.0.0.1:4197/a232caf3-b120-4dbc-8564-c30dab8842cc",
+          "name": "em-pthread",
+          "operations": [],
+          "responses": []
+        },
+        {
+          "url": "blob:http://127.0.0.1:4197/a232caf3-b120-4dbc-8564-c30dab8842cc",
+          "name": "em-pthread",
+          "operations": [],
+          "responses": []
+        },
+        {
+          "url": "blob:http://127.0.0.1:4197/a232caf3-b120-4dbc-8564-c30dab8842cc",
+          "name": "em-pthread",
+          "operations": [],
+          "responses": []
+        },
+        {
+          "url": "blob:http://127.0.0.1:4197/a232caf3-b120-4dbc-8564-c30dab8842cc",
+          "name": "em-pthread",
+          "operations": [],
+          "responses": []
+        },
+        {
+          "url": "blob:http://127.0.0.1:4197/a232caf3-b120-4dbc-8564-c30dab8842cc",
+          "name": "em-pthread",
+          "operations": [],
+          "responses": []
+        }
+      ]
+    },
+    "candidate": {
+      "mode": "current",
+      "repeats": 3,
+      "windowMs": 2400,
+      "environment": {
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "hardwareConcurrency": 5,
+        "secureContext": true,
+        "crossOriginIsolated": true,
+        "sharedArrayBuffer": true,
+        "longTasksSupported": true
+      },
+      "method": "Synthetic 8/16 MiB memory-card data in real idle Emscripten FS. UI RAF gaps and browser long tasks measure main-thread responsiveness; no ISO and no emulated-game frame rate is measured. Baseline reproduces its preflight capture plus export plus validated IndexedDB write.",
+      "trials": [
+        {
+          "sizeMiB": 0,
+          "trial": 1,
+          "controlWithoutBackup": true,
+          "sampleElapsedMs": 2399.6650000214577,
+          "operationElapsedMs": 0.005000025033950806,
+          "captureDurationsMs": [],
+          "exportEntrySyncMs": null,
+          "exportElapsedMs": null,
+          "indexedDBPipelineElapsedMs": null,
+          "frameIntervals": {
+            "count": 144,
+            "medianMs": 16.664999999999964,
+            "p95Ms": 16.670000000000073,
+            "p99Ms": 16.670000000000073,
+            "maxMs": 16.670000000000073,
+            "gapsOver33ms": 0,
+            "gapsOver50ms": 0
+          },
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0,
+            "entries": []
+          },
+          "result": null,
+          "error": null
+        },
+        {
+          "sizeMiB": 0,
+          "trial": 2,
+          "controlWithoutBackup": true,
+          "sampleElapsedMs": 2399.765000015497,
+          "operationElapsedMs": 0.004999995231628418,
+          "captureDurationsMs": [],
+          "exportEntrySyncMs": null,
+          "exportElapsedMs": null,
+          "indexedDBPipelineElapsedMs": null,
+          "frameIntervals": {
+            "count": 144,
+            "medianMs": 16.664999999999964,
+            "p95Ms": 16.670000000000073,
+            "p99Ms": 16.670000000000073,
+            "maxMs": 16.670000000000073,
+            "gapsOver33ms": 0,
+            "gapsOver50ms": 0
+          },
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0,
+            "entries": []
+          },
+          "result": null,
+          "error": null
+        },
+        {
+          "sizeMiB": 0,
+          "trial": 3,
+          "controlWithoutBackup": true,
+          "sampleElapsedMs": 2399.405000001192,
+          "operationElapsedMs": 0,
+          "captureDurationsMs": [],
+          "exportEntrySyncMs": null,
+          "exportElapsedMs": null,
+          "indexedDBPipelineElapsedMs": null,
+          "frameIntervals": {
+            "count": 144,
+            "medianMs": 16.664999999999964,
+            "p95Ms": 16.670000000000073,
+            "p99Ms": 16.670000000000073,
+            "maxMs": 16.670000000000073,
+            "gapsOver33ms": 0,
+            "gapsOver50ms": 0
+          },
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0,
+            "entries": []
+          },
+          "result": null,
+          "error": null
+        },
+        {
+          "sizeMiB": 8,
+          "trial": 1,
+          "controlWithoutBackup": false,
+          "sampleElapsedMs": 2399.4300000071526,
+          "operationElapsedMs": 175.98999997973442,
+          "captureDurationsMs": [
+            3.755000025033951
+          ],
+          "exportEntrySyncMs": 7.219999998807907,
+          "exportElapsedMs": 92.34000000357628,
+          "indexedDBPipelineElapsedMs": 83.625,
+          "frameIntervals": {
+            "count": 144,
+            "medianMs": 16.665000000000873,
+            "p95Ms": 16.670000000000073,
+            "p99Ms": 16.670000000000073,
+            "maxMs": 16.670000000000073,
+            "gapsOver33ms": 0,
+            "gapsOver50ms": 0
+          },
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0,
+            "entries": []
+          },
+          "result": {
+            "blobBytes": 11185105,
+            "fileCount": 1
+          },
+          "error": null
+        },
+        {
+          "sizeMiB": 8,
+          "trial": 2,
+          "controlWithoutBackup": false,
+          "sampleElapsedMs": 2399.9899999797344,
+          "operationElapsedMs": 175.60499998927116,
+          "captureDurationsMs": [
+            3.255000025033951
+          ],
+          "exportEntrySyncMs": 6.044999986886978,
+          "exportElapsedMs": 90.95500001311302,
+          "indexedDBPipelineElapsedMs": 84.62999999523163,
+          "frameIntervals": {
+            "count": 144,
+            "medianMs": 16.665000000000873,
+            "p95Ms": 16.670000000000073,
+            "p99Ms": 16.670000000000073,
+            "maxMs": 16.670000000000073,
+            "gapsOver33ms": 0,
+            "gapsOver50ms": 0
+          },
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0,
+            "entries": []
+          },
+          "result": {
+            "blobBytes": 11185105,
+            "fileCount": 1
+          },
+          "error": null
+        },
+        {
+          "sizeMiB": 8,
+          "trial": 3,
+          "controlWithoutBackup": false,
+          "sampleElapsedMs": 2400.185000002384,
+          "operationElapsedMs": 180.72499999403954,
+          "captureDurationsMs": [
+            2.8899999856948853
+          ],
+          "exportEntrySyncMs": 5.625,
+          "exportElapsedMs": 92.58000001311302,
+          "indexedDBPipelineElapsedMs": 88.13999998569489,
+          "frameIntervals": {
+            "count": 144,
+            "medianMs": 16.665000000000873,
+            "p95Ms": 16.67000000000189,
+            "p99Ms": 16.67000000000189,
+            "maxMs": 16.67000000000189,
+            "gapsOver33ms": 0,
+            "gapsOver50ms": 0
+          },
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0,
+            "entries": []
+          },
+          "result": {
+            "blobBytes": 11185105,
+            "fileCount": 1
+          },
+          "error": null
+        },
+        {
+          "sizeMiB": 16,
+          "trial": 1,
+          "controlWithoutBackup": false,
+          "sampleElapsedMs": 2399.935000002384,
+          "operationElapsedMs": 342.5799999833107,
+          "captureDurationsMs": [
+            6.680000007152557
+          ],
+          "exportEntrySyncMs": 12.995000004768372,
+          "exportElapsedMs": 182.72499999403954,
+          "indexedDBPipelineElapsedMs": 159.84000000357628,
+          "frameIntervals": {
+            "count": 144,
+            "medianMs": 16.665000000000873,
+            "p95Ms": 16.67000000000189,
+            "p99Ms": 16.67000000000189,
+            "maxMs": 16.67000000000189,
+            "gapsOver33ms": 0,
+            "gapsOver50ms": 0
+          },
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0,
+            "entries": []
+          },
+          "result": {
+            "blobBytes": 22369917,
+            "fileCount": 1
+          },
+          "error": null
+        },
+        {
+          "sizeMiB": 16,
+          "trial": 2,
+          "controlWithoutBackup": false,
+          "sampleElapsedMs": 2400.2400000095367,
+          "operationElapsedMs": 328.74499997496605,
+          "captureDurationsMs": [
+            6.200000017881393
+          ],
+          "exportEntrySyncMs": 11.524999976158142,
+          "exportElapsedMs": 172.94499999284744,
+          "indexedDBPipelineElapsedMs": 155.7999999821186,
+          "frameIntervals": {
+            "count": 144,
+            "medianMs": 16.665000000000873,
+            "p95Ms": 16.67000000000189,
+            "p99Ms": 16.67000000000189,
+            "maxMs": 16.67000000000189,
+            "gapsOver33ms": 0,
+            "gapsOver50ms": 0
+          },
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0,
+            "entries": []
+          },
+          "result": {
+            "blobBytes": 22369917,
+            "fileCount": 1
+          },
+          "error": null
+        },
+        {
+          "sizeMiB": 16,
+          "trial": 3,
+          "controlWithoutBackup": false,
+          "sampleElapsedMs": 2400.0750000178814,
+          "operationElapsedMs": 369.27000001072884,
+          "captureDurationsMs": [
+            5.939999997615814
+          ],
+          "exportEntrySyncMs": 11.349999994039536,
+          "exportElapsedMs": 182.875,
+          "indexedDBPipelineElapsedMs": 186.38499999046326,
+          "frameIntervals": {
+            "count": 144,
+            "medianMs": 16.665000000000873,
+            "p95Ms": 16.67000000000189,
+            "p99Ms": 16.67000000000189,
+            "maxMs": 16.67000000000189,
+            "gapsOver33ms": 0,
+            "gapsOver50ms": 0
+          },
+          "longTasks": {
+            "count": 0,
+            "totalMs": 0,
+            "maxMs": 0,
+            "entries": []
+          },
+          "result": {
+            "blobBytes": 22369917,
+            "fileCount": 1
+          },
+          "error": null
+        }
+      ],
+      "integrity": {
+        "bytes": 16777216,
+        "indexedDBCommittedRead": true,
+        "saveVersion": 1,
+        "recoveredSha256": "ba29bc6e972e5c2870fd5470d9fa02766b4c51ebfff88982f8452c61ec655292",
+        "liveFSOwnershipPreserved": true,
+        "roundtripBytesPreserved": true
+      },
+      "fallbacks": [
+        {
+          "scenario": "unavailable",
+          "encodeDecodeValidatePassed": true
+        },
+        {
+          "scenario": "startupFailure",
+          "encodeDecodeValidatePassed": true
+        }
+      ],
+      "browserErrors": [],
+      "consoleWarnings": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "[.WebGL-0x18e40018b000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+      ],
+      "workerEvidence": [
+        {
+          "url": "blob:http://127.0.0.1:4197/44095fb0-4f0c-4c05-94bb-c9dcfc1776b8",
+          "name": "digital-station-probe",
+          "operations": [],
+          "responses": []
+        },
+        {
+          "url": "blob:http://127.0.0.1:4197/5807d9ce-be0b-4b00-9c43-f7e7d83aa819",
+          "name": "em-pthread",
+          "operations": [],
+          "responses": []
+        },
+        {
+          "url": "blob:http://127.0.0.1:4197/5807d9ce-be0b-4b00-9c43-f7e7d83aa819",
+          "name": "em-pthread",
+          "operations": [],
+          "responses": []
+        },
+        {
+          "url": "blob:http://127.0.0.1:4197/5807d9ce-be0b-4b00-9c43-f7e7d83aa819",
+          "name": "em-pthread",
+          "operations": [],
+          "responses": []
+        },
+        {
+          "url": "blob:http://127.0.0.1:4197/5807d9ce-be0b-4b00-9c43-f7e7d83aa819",
+          "name": "em-pthread",
+          "operations": [],
+          "responses": []
+        },
+        {
+          "url": "blob:http://127.0.0.1:4197/5807d9ce-be0b-4b00-9c43-f7e7d83aa819",
+          "name": "em-pthread",
+          "operations": [],
+          "responses": []
+        },
+        {
+          "url": "blob:http://127.0.0.1:4197/5807d9ce-be0b-4b00-9c43-f7e7d83aa819",
+          "name": "em-pthread",
+          "operations": [],
+          "responses": []
+        },
+        {
+          "url": "http://127.0.0.1:4197/current/src/emulator/save-codec-worker.js",
+          "name": null,
+          "operations": [
+            {
+              "operation": "encode",
+              "id": 1
+            },
+            {
+              "operation": "validate",
+              "id": 2
+            },
+            {
+              "operation": "encode",
+              "id": 3
+            },
+            {
+              "operation": "validate",
+              "id": 4
+            },
+            {
+              "operation": "encode",
+              "id": 5
+            },
+            {
+              "operation": "validate",
+              "id": 6
+            },
+            {
+              "operation": "encode",
+              "id": 7
+            },
+            {
+              "operation": "validate",
+              "id": 8
+            },
+            {
+              "operation": "encode",
+              "id": 9
+            },
+            {
+              "operation": "validate",
+              "id": 10
+            },
+            {
+              "operation": "encode",
+              "id": 11
+            },
+            {
+              "operation": "validate",
+              "id": 12
+            },
+            {
+              "operation": "validate",
+              "id": 13
+            },
+            {
+              "operation": "decode",
+              "id": 14
+            },
+            {
+              "operation": "encode",
+              "id": 15
+            },
+            {
+              "operation": "decode",
+              "id": 16
+            }
+          ],
+          "responses": [
+            {
+              "id": 1,
+              "error": false
+            },
+            {
+              "id": 2,
+              "error": false
+            },
+            {
+              "id": 3,
+              "error": false
+            },
+            {
+              "id": 4,
+              "error": false
+            },
+            {
+              "id": 5,
+              "error": false
+            },
+            {
+              "id": 6,
+              "error": false
+            },
+            {
+              "id": 7,
+              "error": false
+            },
+            {
+              "id": 8,
+              "error": false
+            },
+            {
+              "id": 9,
+              "error": false
+            },
+            {
+              "id": 10,
+              "error": false
+            },
+            {
+              "id": 11,
+              "error": false
+            },
+            {
+              "id": 12,
+              "error": false
+            },
+            {
+              "id": 13,
+              "error": false
+            },
+            {
+              "id": 14,
+              "error": false
+            },
+            {
+              "id": 15,
+              "error": false
+            },
+            {
+              "id": 16,
+              "error": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "functional": {
+    "transport": "Native Chromium HTTP to trusted loopback http://127.0.0.1:4173. Production Vite build, no intercepted requests or authentication.",
+    "fixture": "Synthetic valid .dssave with one small text file. No game ROM or real PS2 progress.",
+    "summary": {
+      "passed": 20,
+      "total": 20
+    },
+    "targets": [
+      {
+        "name": "fluidity-desktop",
+        "url": "http://127.0.0.1:4173/",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "checks": [
+          {
+            "name": "UI, readiness, Nova aba, isolation and layout",
+            "passed": true,
+            "detail": {
+              "status": 200,
+              "title": "Digital Station — PS2 no navegador",
+              "readiness": [
+                {
+                  "label": "Execução do emuladorDisponível",
+                  "ready": "true"
+                },
+                {
+                  "label": "Memória compartilhadaDisponível",
+                  "ready": "true"
+                },
+                {
+                  "label": "Gráficos WebGL2Disponível",
+                  "ready": "true"
+                }
+              ],
+              "layout": {
+                "width": 1440,
+                "scrollWidth": 1440,
+                "isolation": true,
+                "sharedArrayBuffer": true,
+                "secureContext": true
+              },
+              "novaAbaBounds": {
+                "x": 1233.625,
+                "y": 42,
+                "width": 72.375,
+                "height": 18
+              }
+            }
+          },
+          {
+            "name": "Invalid file cannot start a game",
+            "passed": true,
+            "detail": "Formato não suportado. Escolha uma ISO, CSO, CHD, ISZ, BIN ou ELF. Arquivos ZIP e 7Z precisam ser extraídos primeiro."
+          },
+          {
+            "name": "Key swap, persistence and restore",
+            "passed": true
+          },
+          {
+            "name": "Real core initializes without ISO; diagnostic is ready",
+            "passed": true,
+            "detail": {
+              "runtime": {
+                "state": "ready",
+                "text": "Emulador preparado"
+              },
+              "diagnostic": "Digital Station · diagnóstico local\nNúcleo: Play! 0.77-12-g83700b2c\nEtapa: Console preparado\nEstado: ready\nNavegador: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36\nIsolamento: true\nSharedArrayBuffer: true\nPolítica de segurança: nenhum bloqueio registrado\nArquivo: nenhum\nTamanho: 0 bytes\nLeituras do disco: 0\nÚltima leitura: nenhuma\n\n2026-10-16T17:28:05.793Z · Carregando módulo\n2026-10-16T17:28:05.834Z · Baixando núcleo\n2026-10-16T17:28:05.870Z · Verificando processos do navegador\n2026-10-16T17:28:05.870Z · Compilando o núcleo WebAssembly.\n2026-10-16T17:28:05.881Z · Verificando processos locais e memória compartilhada.\n2026-10-16T17:28:05.891Z · Comunicação e memória compartilhada confirmadas.\n2026-10-16T17:28:05.912Z · Código dos processos carregado pela página.\n2026-10-16T17:28:05.912Z · Iniciando núcleo e processos\n2026-10-16T17:28:05.951Z · Play! - Version 0.77-12-g83700b2c\r\n2026-10-16T17:28:05.952Z · Preparando console\n2026-10-16T17:28:06.281Z · Console preparado.",
+              "notice": "Emulador preparado. Selecione o arquivo do jogo e clique em Iniciar jogo."
+            }
+          },
+          {
+            "name": "Empty card cannot download or request confirmation",
+            "passed": true,
+            "detail": "O cartão ainda está vazio. Salve o progresso dentro do jogo antes de baixar o SAVE."
+          },
+          {
+            "name": "Import synthetic SAVE and confirm delayed IndexedDB backup",
+            "passed": true,
+            "detail": {
+              "elapsedMs": 1251,
+              "status": "Último backup local: 16/10/2026, 17:28:07. Disponível neste navegador."
+            }
+          },
+          {
+            "name": "SAVE import/download preserves bytes; confirmation is explicit",
+            "passed": true,
+            "detail": {
+              "destination": "/workspace/scratch/fluidity-review/functional/fluidity-desktop-import-roundtrip.dssave",
+              "suggestedFilename": "Digital-Station-2026-10-16T17-28-07-681Z.dssave",
+              "files": 1
+            }
+          },
+          {
+            "name": "Reload discovers IndexedDB backup and restores it explicitly",
+            "passed": true,
+            "detail": {
+              "status": "Preparando backup local após a gravação no cartão…",
+              "file": "Recuperado-Digital-Station.dssave"
+            }
+          },
+          {
+            "name": "Recovered SAVE survives attachment to real core and export",
+            "passed": true,
+            "detail": {
+              "coreState": "ready",
+              "diagnosticStateReady": true,
+              "destination": "/workspace/scratch/fluidity-review/functional/fluidity-desktop-recovered-roundtrip.dssave",
+              "suggestedFilename": "Digital-Station-2026-10-16T17-28-08-997Z.dssave",
+              "files": 1
+            }
+          },
+          {
+            "name": "Delete backup requires confirmation and preserves active SAVE",
+            "passed": true,
+            "detail": {
+              "dialogs": [
+                {
+                  "type": "confirm",
+                  "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+                  "action": "dismiss"
+                },
+                {
+                  "type": "confirm",
+                  "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+                  "action": "accept"
+                }
+              ],
+              "persistedDeletion": true,
+              "codecOperations": [
+                "decode",
+                "encode",
+                "validate"
+              ],
+              "codecWorkerCount": 2
+            }
+          }
+        ],
+        "pageErrors": [],
+        "consoleErrors": [],
+        "expectedValidationErrors": [
+          "Digital Station: Error: Formato não suportado. Escolha uma ISO, CSO, CHD, ISZ, BIN ou ELF. Arquivos ZIP e 7Z precisam ser extraídos primeiro.\n    at Dt (http://127.0.0.1:4173/assets/index-nJGNXXJX.js:34:8065)\n    at http://127.0.0.1:4173/assets/index-nJGNXXJX.js:35:5866\n    at async nt (http://127.0.0.1:4173/assets/index-nJGNXXJX.js:35:5853)"
+        ],
+        "networkFailures": [],
+        "optionalToolbarFailures": [],
+        "dialogs": [
+          {
+            "type": "confirm",
+            "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+            "action": "dismiss"
+          },
+          {
+            "type": "confirm",
+            "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+            "action": "accept"
+          }
+        ],
+        "codecEvents": [
+          {
+            "event": "created",
+            "url": "http://127.0.0.1:4173/assets/save-codec-worker-CLiWf_VY.js",
+            "type": "module"
+          },
+          {
+            "event": "sent",
+            "id": 1,
+            "operation": "decode",
+            "transferArguments": 0
+          },
+          {
+            "event": "received",
+            "id": 1,
+            "error": null,
+            "validation": false,
+            "files": [
+              {
+                "path": "mc0/review-fixture.bin",
+                "byteLength": 76
+              }
+            ]
+          },
+          {
+            "event": "sent",
+            "id": 2,
+            "operation": "encode",
+            "transferArguments": 0
+          },
+          {
+            "event": "received",
+            "id": 2,
+            "error": null,
+            "validation": false,
+            "blobBytes": 368
+          },
+          {
+            "event": "sent",
+            "id": 3,
+            "operation": "validate",
+            "transferArguments": 0
+          },
+          {
+            "event": "received",
+            "id": 3,
+            "error": null,
+            "validation": true
+          },
+          {
+            "event": "sent",
+            "id": 4,
+            "operation": "encode",
+            "transferArguments": 0
+          },
+          {
+            "event": "received",
+            "id": 4,
+            "error": null,
+            "validation": false,
+            "blobBytes": 368
+          },
+          {
+            "event": "created",
+            "url": "http://127.0.0.1:4173/assets/save-codec-worker-CLiWf_VY.js",
+            "type": "module"
+          },
+          {
+            "event": "sent",
+            "id": 1,
+            "operation": "validate",
+            "transferArguments": 0
+          },
+          {
+            "event": "received",
+            "id": 1,
+            "error": null,
+            "validation": true
+          },
+          {
+            "event": "sent",
+            "id": 2,
+            "operation": "decode",
+            "transferArguments": 0
+          },
+          {
+            "event": "received",
+            "id": 2,
+            "error": null,
+            "validation": false,
+            "files": [
+              {
+                "path": "mc0/review-fixture.bin",
+                "byteLength": 76
+              }
+            ]
+          },
+          {
+            "event": "sent",
+            "id": 3,
+            "operation": "encode",
+            "transferArguments": 0
+          },
+          {
+            "event": "received",
+            "id": 3,
+            "error": null,
+            "validation": false,
+            "blobBytes": 368
+          }
+        ],
+        "core_state": "ready"
+      },
+      {
+        "name": "fluidity-mobile",
+        "url": "http://127.0.0.1:4173/",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "checks": [
+          {
+            "name": "UI, readiness, Nova aba, isolation and layout",
+            "passed": true,
+            "detail": {
+              "status": 200,
+              "title": "Digital Station — PS2 no navegador",
+              "readiness": [
+                {
+                  "label": "Execução do emuladorDisponível",
+                  "ready": "true"
+                },
+                {
+                  "label": "Memória compartilhadaDisponível",
+                  "ready": "true"
+                },
+                {
+                  "label": "Gráficos WebGL2Disponível",
+                  "ready": "true"
+                }
+              ],
+              "layout": {
+                "width": 390,
+                "scrollWidth": 390,
+                "isolation": true,
+                "sharedArrayBuffer": true,
+                "secureContext": true
+              },
+              "novaAbaBounds": {
+                "x": 304.90625,
+                "y": 33.25,
+                "width": 68.09375,
+                "height": 16.5
+              }
+            }
+          },
+          {
+            "name": "Invalid file cannot start a game",
+            "passed": true,
+            "detail": "Formato não suportado. Escolha uma ISO, CSO, CHD, ISZ, BIN ou ELF. Arquivos ZIP e 7Z precisam ser extraídos primeiro."
+          },
+          {
+            "name": "Key swap, persistence and restore",
+            "passed": true
+          },
+          {
+            "name": "Real core initializes without ISO; diagnostic is ready",
+            "passed": true,
+            "detail": {
+              "runtime": {
+                "state": "ready",
+                "text": "Emulador preparado"
+              },
+              "diagnostic": "Digital Station · diagnóstico local\nNúcleo: Play! 0.77-12-g83700b2c\nEtapa: Console preparado\nEstado: ready\nNavegador: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36\nIsolamento: true\nSharedArrayBuffer: true\nPolítica de segurança: nenhum bloqueio registrado\nArquivo: nenhum\nTamanho: 0 bytes\nLeituras do disco: 0\nÚltima leitura: nenhuma\n\n2026-10-16T17:28:11.919Z · Carregando módulo\n2026-10-16T17:28:11.952Z · Baixando núcleo\n2026-10-16T17:28:11.985Z · Verificando processos do navegador\n2026-10-16T17:28:11.985Z · Compilando o núcleo WebAssembly.\n2026-10-16T17:28:11.997Z · Verificando processos locais e memória compartilhada.\n2026-10-16T17:28:12.006Z · Comunicação e memória compartilhada confirmadas.\n2026-10-16T17:28:12.019Z · Código dos processos carregado pela página.\n2026-10-16T17:28:12.020Z · Iniciando núcleo e processos\n2026-10-16T17:28:12.050Z · Play! - Version 0.77-12-g83700b2c\r\n2026-10-16T17:28:12.050Z · Preparando console\n2026-10-16T17:28:12.388Z · Console preparado.",
+              "notice": "Emulador preparado. Selecione o arquivo do jogo e clique em Iniciar jogo."
+            }
+          },
+          {
+            "name": "Empty card cannot download or request confirmation",
+            "passed": true,
+            "detail": "O cartão ainda está vazio. Salve o progresso dentro do jogo antes de baixar o SAVE."
+          },
+          {
+            "name": "Import synthetic SAVE and confirm delayed IndexedDB backup",
+            "passed": true,
+            "detail": {
+              "elapsedMs": 1235,
+              "status": "Último backup local: 16/10/2026, 17:28:13. Disponível neste navegador."
+            }
+          },
+          {
+            "name": "SAVE import/download preserves bytes; confirmation is explicit",
+            "passed": true,
+            "detail": {
+              "destination": "/workspace/scratch/fluidity-review/functional/fluidity-mobile-import-roundtrip.dssave",
+              "suggestedFilename": "Digital-Station-2026-10-16T17-28-13-780Z.dssave",
+              "files": 1
+            }
+          },
+          {
+            "name": "Reload discovers IndexedDB backup and restores it explicitly",
+            "passed": true,
+            "detail": {
+              "status": "Preparando backup local após a gravação no cartão…",
+              "file": "Recuperado-Digital-Station.dssave"
+            }
+          },
+          {
+            "name": "Recovered SAVE survives attachment to real core and export",
+            "passed": true,
+            "detail": {
+              "coreState": "ready",
+              "diagnosticStateReady": true,
+              "destination": "/workspace/scratch/fluidity-review/functional/fluidity-mobile-recovered-roundtrip.dssave",
+              "suggestedFilename": "Digital-Station-2026-10-16T17-28-15-046Z.dssave",
+              "files": 1
+            }
+          },
+          {
+            "name": "Delete backup requires confirmation and preserves active SAVE",
+            "passed": true,
+            "detail": {
+              "dialogs": [
+                {
+                  "type": "confirm",
+                  "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+                  "action": "dismiss"
+                },
+                {
+                  "type": "confirm",
+                  "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+                  "action": "accept"
+                }
+              ],
+              "persistedDeletion": true,
+              "codecOperations": [
+                "decode",
+                "encode",
+                "validate"
+              ],
+              "codecWorkerCount": 2
+            }
+          }
+        ],
+        "pageErrors": [],
+        "consoleErrors": [],
+        "expectedValidationErrors": [
+          "Digital Station: Error: Formato não suportado. Escolha uma ISO, CSO, CHD, ISZ, BIN ou ELF. Arquivos ZIP e 7Z precisam ser extraídos primeiro.\n    at Dt (http://127.0.0.1:4173/assets/index-nJGNXXJX.js:34:8065)\n    at http://127.0.0.1:4173/assets/index-nJGNXXJX.js:35:5866\n    at async nt (http://127.0.0.1:4173/assets/index-nJGNXXJX.js:35:5853)"
+        ],
+        "networkFailures": [],
+        "optionalToolbarFailures": [],
+        "dialogs": [
+          {
+            "type": "confirm",
+            "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+            "action": "dismiss"
+          },
+          {
+            "type": "confirm",
+            "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+            "action": "accept"
+          }
+        ],
+        "codecEvents": [
+          {
+            "event": "created",
+            "url": "http://127.0.0.1:4173/assets/save-codec-worker-CLiWf_VY.js",
+            "type": "module"
+          },
+          {
+            "event": "sent",
+            "id": 1,
+            "operation": "decode",
+            "transferArguments": 0
+          },
+          {
+            "event": "received",
+            "id": 1,
+            "error": null,
+            "validation": false,
+            "files": [
+              {
+                "path": "mc0/review-fixture.bin",
+                "byteLength": 76
+              }
+            ]
+          },
+          {
+            "event": "sent",
+            "id": 2,
+            "operation": "encode",
+            "transferArguments": 0
+          },
+          {
+            "event": "received",
+            "id": 2,
+            "error": null,
+            "validation": false,
+            "blobBytes": 368
+          },
+          {
+            "event": "sent",
+            "id": 3,
+            "operation": "validate",
+            "transferArguments": 0
+          },
+          {
+            "event": "received",
+            "id": 3,
+            "error": null,
+            "validation": true
+          },
+          {
+            "event": "sent",
+            "id": 4,
+            "operation": "encode",
+            "transferArguments": 0
+          },
+          {
+            "event": "received",
+            "id": 4,
+            "error": null,
+            "validation": false,
+            "blobBytes": 368
+          },
+          {
+            "event": "created",
+            "url": "http://127.0.0.1:4173/assets/save-codec-worker-CLiWf_VY.js",
+            "type": "module"
+          },
+          {
+            "event": "sent",
+            "id": 1,
+            "operation": "validate",
+            "transferArguments": 0
+          },
+          {
+            "event": "received",
+            "id": 1,
+            "error": null,
+            "validation": true
+          },
+          {
+            "event": "sent",
+            "id": 2,
+            "operation": "decode",
+            "transferArguments": 0
+          },
+          {
+            "event": "received",
+            "id": 2,
+            "error": null,
+            "validation": false,
+            "files": [
+              {
+                "path": "mc0/review-fixture.bin",
+                "byteLength": 76
+              }
+            ]
+          },
+          {
+            "event": "sent",
+            "id": 3,
+            "operation": "encode",
+            "transferArguments": 0
+          },
+          {
+            "event": "received",
+            "id": 3,
+            "error": null,
+            "validation": false,
+            "blobBytes": 368
+          }
+        ],
+        "core_state": "ready"
+      }
+    ]
+  },
+  "limits": "Synthetic SAVE with real idle core and native Chromium HTTP loopback; UI RAF gaps are not emulated-game frame pacing. No ISO, real game, physical gamepad or low-end device tested."
+}
