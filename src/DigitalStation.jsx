@@ -2,6 +2,9 @@
 // Original JSX source was unavailable; behavior is preserved before upgrades.
 import * as l from "react";
 import BrowserReadiness from "./browser-readiness.jsx";
+import GraphicsSettings from "./graphics/GraphicsSettings.jsx";
+import { graphicsPreferences } from "./graphics/graphics-preferences.js";
+import { applyCoreGraphics } from "./graphics/core-graphics.js";
 import { createBackupStore } from "./storage/save-backup.js";
 import { DiscImageDevice as be } from "./emulator/disc-image-device.js";
 import { MemoryCards as _e } from "./emulator/memory-cards.js";
@@ -666,6 +669,7 @@ function Se({
     ge = i(`copy-diagnostic`);
   function W() {
     let e = _?.discImageDevice;
+    const graphics = graphicsPreferences.getSnapshot().applied;
     return [
       `Digital Station · diagnóstico local`,
       `Núcleo: Play! 0.77-12-g83700b2c`,
@@ -674,6 +678,7 @@ function Se({
       `Navegador: ${navigator.userAgent || `não informado`}`,
       `Isolamento: ${!!window.crossOriginIsolated}`,
       `SharedArrayBuffer: ${typeof SharedArrayBuffer < `u`}`,
+      `Gráficos: ${graphics ? `${graphics.resolutionScale}× · ${graphics.bilinearFiltering ? `bilinear forçado` : `filtro do jogo`}` : `a preparar`}`,
       `Política de segurança: ${j || `nenhum bloqueio registrado`}`,
       `Arquivo: ${g?.name || `nenhum`}`,
       `Tamanho: ${g?.size || 0} bytes`,
@@ -1119,8 +1124,7 @@ function Se({
         if (S) throw Error(`A página foi encerrada.`);
         if (v === `error`)
           throw Error(k || `A inicialização do núcleo falhou.`);
-        if (
-          ((_ = s),
+        ((_ = s),
           K(`Preparando console`),
           _.FS.analyzePath(`/work`).exists || _.FS.mkdir(`/work`),
           (_.discImageDevice = new be(_, () =>
@@ -1130,11 +1134,12 @@ function Se({
               ),
             ),
           )),
-          B.attach(_),
-          _.ccall(`initVm`, null, [], []),
-          v === `error`)
-        )
-          throw Error(`O núcleo não conseguiu inicializar.`);
+          B.attach(_));
+        const appliedGraphics = applyCoreGraphics(_, graphicsPreferences.getSnapshot().preferences);
+        _.ccall(`initVm`, null, [], []);
+        if (v === `error`) throw Error(`O núcleo não conseguiu inicializar.`);
+        graphicsPreferences.markApplied(appliedGraphics);
+        G(`Gráficos preparados: ${appliedGraphics.resolutionScale}× · ${appliedGraphics.bilinearFiltering ? `bilinear forçado` : `filtro do jogo`}.`);
         return (
           (i(`engine-status`).textContent = `Pronto`),
           (O = `Console preparado`),
@@ -1829,6 +1834,7 @@ function Ce() {
             }),
           ],
         }),
+        (0, q.jsx)(GraphicsSettings, {}),
         (0, q.jsxs)(`details`, {
           className: `controls-panel`,
           open: !0,

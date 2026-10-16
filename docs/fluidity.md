@@ -13,6 +13,8 @@ O núcleo publicado é Play! `0.77-12-g83700b2c`. As fontes públicas desse comm
 
 Não há bindings para ajustar o limite, frameskip, resolução ou pausa da VM neste build. O `requestAnimationFrame` da interface consulta os controles e atualiza o indicador de FPS; ele não governa a emulação. As funções genéricas `pauseMainLoop` e `resumeMainLoop` do Emscripten também não são uma API de pausa da VM. Limitar esses callbacks pela interface não implementaria um limite seguro de 30 FPS para o jogo.
 
+Na versão 1.3 foi validada uma alternativa para resolução e filtragem: um arquivo de preferências no filesystem virtual antes de `initVm`. Esses ajustes agora estão no painel; consulte `docs/graphics.md`. O sincronismo nativo permanece habilitado.
+
 ## Trabalho retirado da thread principal
 
 Antes, cada backup capturava o cartão duas vezes e fazia base64, serialização JSON, checksum, parsing e decodificação na thread principal. Essas operações podiam ocupar a thread que também atende WebGL, Web Audio e controles, mesmo com o núcleo em outro processo.

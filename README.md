@@ -36,6 +36,7 @@ npm run preview -- --port 4173 --strictPort
 
 ## Melhorias
 
+- Gráficos: resolução interna 1×/2×, filtro de texturas, opções de exibição e análise opcional do dispositivo com sugestões locais. Alterações nativas após preparar o núcleo são sinalizadas para a próxima sessão. Veja [gráficos e privacidade da análise](docs/graphics.md).
 - Fluidez: processamento pesado de SAVE em Worker dedicado, uma captura por backup e atualizações de interface agrupadas. O sincronismo nativo do jogo e a resolução interna 1× foram preservados. Veja [a revisão de fluidez](docs/fluidity.md).
 - Backup automático dos cartões no IndexedDB, confirmado somente após a transação completar. Recuperação explícita antes de iniciar o jogo e opção de exclusão do backup.
 - O backup guarda somente o SAVE, nunca a ISO. A gravação é adiada enquanto o cartão estiver aberto para escrita. O último backup válido é preservado em erros de quota, validação ou transação.

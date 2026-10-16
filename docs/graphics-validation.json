@@ -1,0 +1,621 @@
+{
+  "version": "1.3.0",
+  "date": "2026-10-16",
+  "unit_tests": {
+    "passed": 65,
+    "failed": 0,
+    "skipped": 0
+  },
+  "source_sha256": {
+    "src/DigitalStation.jsx": "6aee75912235597c2fef87d52a5d8f9572aea587803d6e7a44701f154055f25e",
+    "src/upgrades.css": "17e55b269f3991b19c5ac7d4c177523690153204d44a1347f90ef7329a9407a0",
+    "src/graphics/device-analysis.js": "643aec00f4a24aedeb0b8cf0002b4d79a7399f197fec7c0d3e86ad31bd5b410f",
+    "src/graphics/core-graphics.js": "3a0dfc921cec7d702ca8c4ab5b09cd060a2212f8e93864a3b6796c56c3ed077c",
+    "src/graphics/GraphicsSettings.jsx": "281e446518e3a600774326a892dbb8135253fc626dad90a82408bbd230842476",
+    "src/graphics/graphics-preferences.js": "5740eff6f23fc0fcfeba9c59b38cac7b2a8f7bed9a9be2fefc5e13a4b5a4552c"
+  },
+  "native_core": {
+    "coreVersion": "Play! 0.77-12-g83700b2c",
+    "frameworkCommit": "587f278917acc0026bf5fc34b39f995fc26bd015",
+    "coreSha256": {
+      "Play.js": "5599ff16ae5e3534f9b779736aedfa20661821d57be7f03e587e31ef8d090317",
+      "Play.wasm": "5c6ace637a23f3416a8105d1a07786631994e8dfe34d603a9f62c3b47c47f1a2"
+    },
+    "romUsed": false,
+    "productCoreModified": false
+  },
+  "native_preferences_proof": [
+    {
+      "mode": "defaults",
+      "shared": true,
+      "bytes": 164626432,
+      "reads": [
+        {
+          "path": "/home/web_user/.local/share/Play Data Files/config.xml",
+          "flags": 32768
+        }
+      ],
+      "preferences": [
+        {
+          "name": "ps2.limitframerate",
+          "type": 1,
+          "value": 1
+        },
+        {
+          "name": "renderer.widescreen",
+          "type": 1,
+          "value": 0
+        },
+        {
+          "name": "renderer.opengl.resfactor",
+          "type": 0,
+          "value": 1
+        },
+        {
+          "name": "renderer.opengl.forcebilineartextures",
+          "type": 1,
+          "value": 0
+        }
+      ]
+    },
+    {
+      "mode": "custom-after",
+      "shared": true,
+      "bytes": 164626432,
+      "reads": [
+        {
+          "path": "/home/web_user/.local/share/Play Data Files/config.xml",
+          "flags": 32768
+        },
+        {
+          "path": "/home/web_user/.local/share/Play Data Files/config.xml",
+          "flags": 577
+        }
+      ],
+      "preferences": [
+        {
+          "name": "ps2.limitframerate",
+          "type": 1,
+          "value": 1
+        },
+        {
+          "name": "renderer.widescreen",
+          "type": 1,
+          "value": 0
+        },
+        {
+          "name": "renderer.opengl.resfactor",
+          "type": 0,
+          "value": 1
+        },
+        {
+          "name": "renderer.opengl.forcebilineartextures",
+          "type": 1,
+          "value": 0
+        }
+      ]
+    },
+    {
+      "mode": "adapter-before",
+      "shared": true,
+      "bytes": 164626432,
+      "reads": [
+        {
+          "path": "/home/web_user/.local/share/Play Data Files/config.xml",
+          "flags": 577
+        },
+        {
+          "path": "/home/web_user/.local/share/Play Data Files/config.xml",
+          "flags": 32768
+        }
+      ],
+      "preferences": [
+        {
+          "name": "renderer.opengl.forcebilineartextures",
+          "type": 1,
+          "value": 1
+        },
+        {
+          "name": "ps2.limitframerate",
+          "type": 1,
+          "value": 1
+        },
+        {
+          "name": "renderer.opengl.resfactor",
+          "type": 0,
+          "value": 2
+        },
+        {
+          "name": "renderer.widescreen",
+          "type": 1,
+          "value": 0
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "url": "http://127.0.0.1:4173/",
+    "transport": "Native Chromium HTTP loopback, real compiled app and core, no ISO.",
+    "targets": [
+      {
+        "name": "desktop",
+        "checks": [
+          {
+            "name": "Defaults, accessible fields and no device analysis before consent",
+            "passed": true
+          },
+          {
+            "name": "Manual choices persist only graphics and preserve canvas identity",
+            "passed": true,
+            "detail": {
+              "stored": {
+                "version": 1,
+                "resolutionScale": 2,
+                "bilinearFiltering": true,
+                "displaySize": "compact",
+                "scaling": "pixelated",
+                "showFps": false
+              },
+              "sameCanvas": true,
+              "dimensions": [
+                640,
+                480
+              ],
+              "scaling": "pixelated",
+              "screenWidth": 640
+            }
+          },
+          {
+            "name": "Explicit local analysis does not send data or change choices",
+            "passed": true,
+            "detail": {
+              "requests": [],
+              "reads": {
+                "processors": 1,
+                "memory": 1
+              }
+            }
+          },
+          {
+            "name": "Recommendation is opt-in and forgetting analysis preserves selected settings",
+            "passed": true
+          },
+          {
+            "name": "Real core receives 2x/bilinear configuration before initVm",
+            "passed": true,
+            "detail": {
+              "xmlBeforeInit": "<?xml version=\"1.0\"?>\n<Config>\n  <Preference Name=\"renderer.opengl.resfactor\" Type=\"integer\" Value=\"2\"/>\n  <Preference Name=\"renderer.opengl.forcebilineartextures\" Type=\"boolean\" Value=\"true\"/>\n  <Preference Name=\"ps2.limitframerate\" Type=\"boolean\" Value=\"true\"/>\n</Config>\n",
+              "state": "ready"
+            }
+          },
+          {
+            "name": "Changing initialized core leaves current configuration and warns about reload",
+            "passed": true
+          },
+          {
+            "name": "Reload restores choices without collecting or retaining device report",
+            "passed": true
+          },
+          {
+            "name": "Reset preserves other settings and layout fits the viewport",
+            "passed": true,
+            "detail": {
+              "width": 1440,
+              "scrollWidth": 1440
+            }
+          }
+        ],
+        "pageErrors": [],
+        "requestFailures": []
+      },
+      {
+        "name": "mobile",
+        "checks": [
+          {
+            "name": "Defaults, accessible fields and no device analysis before consent",
+            "passed": true
+          },
+          {
+            "name": "Manual choices persist only graphics and preserve canvas identity",
+            "passed": true,
+            "detail": {
+              "stored": {
+                "version": 1,
+                "resolutionScale": 2,
+                "bilinearFiltering": true,
+                "displaySize": "compact",
+                "scaling": "pixelated",
+                "showFps": false
+              },
+              "sameCanvas": true,
+              "dimensions": [
+                640,
+                480
+              ],
+              "scaling": "pixelated",
+              "screenWidth": 354
+            }
+          },
+          {
+            "name": "Explicit local analysis does not send data or change choices",
+            "passed": true,
+            "detail": {
+              "requests": [],
+              "reads": {
+                "processors": 1,
+                "memory": 1
+              }
+            }
+          },
+          {
+            "name": "Recommendation is opt-in and forgetting analysis preserves selected settings",
+            "passed": true
+          },
+          {
+            "name": "Real core receives 2x/bilinear configuration before initVm",
+            "passed": true,
+            "detail": {
+              "xmlBeforeInit": "<?xml version=\"1.0\"?>\n<Config>\n  <Preference Name=\"renderer.opengl.resfactor\" Type=\"integer\" Value=\"2\"/>\n  <Preference Name=\"renderer.opengl.forcebilineartextures\" Type=\"boolean\" Value=\"true\"/>\n  <Preference Name=\"ps2.limitframerate\" Type=\"boolean\" Value=\"true\"/>\n</Config>\n",
+              "state": "ready"
+            }
+          },
+          {
+            "name": "Changing initialized core leaves current configuration and warns about reload",
+            "passed": true
+          },
+          {
+            "name": "Reload restores choices without collecting or retaining device report",
+            "passed": true
+          },
+          {
+            "name": "Reset preserves other settings and layout fits the viewport",
+            "passed": true,
+            "detail": {
+              "width": 390,
+              "scrollWidth": 390
+            }
+          }
+        ],
+        "pageErrors": [],
+        "requestFailures": []
+      },
+      {
+        "name": "blocked-storage-unknown-device",
+        "checks": [
+          {
+            "name": "Blocked storage and restricted device APIs keep manual settings usable",
+            "passed": true
+          }
+        ]
+      }
+    ],
+    "passed": 17,
+    "failed": 0
+  },
+  "ui_device_fixture_note": "Processor/memory getters overridden only in UI tests (8/8 desktop; 2/2 mobile; blocked unknown). Product uses actual browser values on explicit click.",
+  "functional": {
+    "transport": "Native Chromium HTTP to trusted loopback http://127.0.0.1:4173. Production Vite build, no intercepted requests or authentication.",
+    "fixture": "Synthetic valid .dssave with one small text file. No game ROM or real PS2 progress.",
+    "summary": {
+      "passed": 20,
+      "total": 20
+    },
+    "targets": [
+      {
+        "name": "graphics-desktop",
+        "url": "http://127.0.0.1:4173/",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "checks": [
+          {
+            "name": "UI, readiness, Nova aba, isolation and layout",
+            "passed": true,
+            "detail": {
+              "status": 200,
+              "title": "Digital Station — PS2 no navegador",
+              "readiness": [
+                {
+                  "label": "Execução do emuladorDisponível",
+                  "ready": "true"
+                },
+                {
+                  "label": "Memória compartilhadaDisponível",
+                  "ready": "true"
+                },
+                {
+                  "label": "Gráficos WebGL2Disponível",
+                  "ready": "true"
+                }
+              ],
+              "layout": {
+                "width": 1440,
+                "scrollWidth": 1440,
+                "isolation": true,
+                "sharedArrayBuffer": true,
+                "secureContext": true
+              },
+              "novaAbaBounds": {
+                "x": 1233.625,
+                "y": 42,
+                "width": 72.375,
+                "height": 18
+              }
+            }
+          },
+          {
+            "name": "Invalid file cannot start a game",
+            "passed": true,
+            "detail": "Formato não suportado. Escolha uma ISO, CSO, CHD, ISZ, BIN ou ELF. Arquivos ZIP e 7Z precisam ser extraídos primeiro."
+          },
+          {
+            "name": "Key swap, persistence and restore",
+            "passed": true
+          },
+          {
+            "name": "Real core initializes without ISO; diagnostic is ready",
+            "passed": true,
+            "detail": {
+              "runtime": {
+                "state": "ready",
+                "text": "Emulador preparado"
+              },
+              "diagnostic": "Digital Station · diagnóstico local\nNúcleo: Play! 0.77-12-g83700b2c\nEtapa: Console preparado\nEstado: ready\nNavegador: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36\nIsolamento: true\nSharedArrayBuffer: true\nGráficos: 1× · filtro do jogo\nPolítica de segurança: nenhum bloqueio registrado\nArquivo: nenhum\nTamanho: 0 bytes\nLeituras do disco: 0\nÚltima leitura: nenhuma\n\n2026-10-16T18:58:00.143Z · Carregando módulo\n2026-10-16T18:58:00.177Z · Baixando núcleo\n2026-10-16T18:58:00.217Z · Verificando processos do navegador\n2026-10-16T18:58:00.217Z · Compilando o núcleo WebAssembly.\n2026-10-16T18:58:00.222Z · Verificando processos locais e memória compartilhada.\n2026-10-16T18:58:00.234Z · Comunicação e memória compartilhada confirmadas.\n2026-10-16T18:58:00.248Z · Código dos processos carregado pela página.\n2026-10-16T18:58:00.248Z · Iniciando núcleo e processos\n2026-10-16T18:58:00.278Z · Play! - Version 0.77-12-g83700b2c\r\n2026-10-16T18:58:00.278Z · Preparando console\n2026-10-16T18:58:00.616Z · Gráficos preparados: 1× · filtro do jogo.\n2026-10-16T18:58:00.616Z · Console preparado.",
+              "notice": "Emulador preparado. Selecione o arquivo do jogo e clique em Iniciar jogo."
+            }
+          },
+          {
+            "name": "Empty card cannot download or request confirmation",
+            "passed": true,
+            "detail": "O cartão ainda está vazio. Salve o progresso dentro do jogo antes de baixar o SAVE."
+          },
+          {
+            "name": "Import synthetic SAVE and confirm delayed IndexedDB backup",
+            "passed": true,
+            "detail": {
+              "elapsedMs": 1258,
+              "status": "Último backup local: 16/10/2026, 18:58:01. Disponível neste navegador."
+            }
+          },
+          {
+            "name": "SAVE import/download preserves bytes; confirmation is explicit",
+            "passed": true,
+            "detail": {
+              "destination": "/workspace/scratch/graphics-review/functional/graphics-desktop-import-roundtrip.dssave",
+              "suggestedFilename": "Digital-Station-2026-10-16T18-58-02-048Z.dssave",
+              "files": 1
+            }
+          },
+          {
+            "name": "Reload discovers IndexedDB backup and restores it explicitly",
+            "passed": true,
+            "detail": {
+              "status": "Preparando backup local após a gravação no cartão…",
+              "file": "Recuperado-Digital-Station.dssave"
+            }
+          },
+          {
+            "name": "Recovered SAVE survives attachment to real core and export",
+            "passed": true,
+            "detail": {
+              "coreState": "ready",
+              "diagnosticStateReady": true,
+              "destination": "/workspace/scratch/graphics-review/functional/graphics-desktop-recovered-roundtrip.dssave",
+              "suggestedFilename": "Digital-Station-2026-10-16T18-58-03-982Z.dssave",
+              "files": 1
+            }
+          },
+          {
+            "name": "Delete backup requires confirmation and preserves active SAVE",
+            "passed": true,
+            "detail": {
+              "dialogs": [
+                {
+                  "type": "confirm",
+                  "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+                  "action": "dismiss"
+                },
+                {
+                  "type": "confirm",
+                  "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+                  "action": "accept"
+                }
+              ],
+              "persistedDeletion": true,
+              "codecOperations": [
+                "decode",
+                "encode",
+                "validate"
+              ],
+              "codecWorkerCount": 2
+            }
+          }
+        ],
+        "pageErrors": [],
+        "consoleErrors": [],
+        "expectedValidationErrors": [
+          "Digital Station: Error: Formato não suportado. Escolha uma ISO, CSO, CHD, ISZ, BIN ou ELF. Arquivos ZIP e 7Z precisam ser extraídos primeiro.\n    at Jt (http://127.0.0.1:4173/assets/index-Eu4FqDgF.js:38:8065)\n    at http://127.0.0.1:4173/assets/index-Eu4FqDgF.js:39:5855\n    at async Qe (http://127.0.0.1:4173/assets/index-Eu4FqDgF.js:39:5842)"
+        ],
+        "networkFailures": [],
+        "optionalToolbarFailures": [],
+        "dialogs": [
+          {
+            "type": "confirm",
+            "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+            "action": "dismiss"
+          },
+          {
+            "type": "confirm",
+            "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+            "action": "accept"
+          }
+        ],
+        "core_state": "ready",
+        "codec_operations": [
+          "decode",
+          "encode",
+          "validate"
+        ]
+      },
+      {
+        "name": "graphics-mobile",
+        "url": "http://127.0.0.1:4173/",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "checks": [
+          {
+            "name": "UI, readiness, Nova aba, isolation and layout",
+            "passed": true,
+            "detail": {
+              "status": 200,
+              "title": "Digital Station — PS2 no navegador",
+              "readiness": [
+                {
+                  "label": "Execução do emuladorDisponível",
+                  "ready": "true"
+                },
+                {
+                  "label": "Memória compartilhadaDisponível",
+                  "ready": "true"
+                },
+                {
+                  "label": "Gráficos WebGL2Disponível",
+                  "ready": "true"
+                }
+              ],
+              "layout": {
+                "width": 390,
+                "scrollWidth": 390,
+                "isolation": true,
+                "sharedArrayBuffer": true,
+                "secureContext": true
+              },
+              "novaAbaBounds": {
+                "x": 304.90625,
+                "y": 33.25,
+                "width": 68.09375,
+                "height": 16.5
+              }
+            }
+          },
+          {
+            "name": "Invalid file cannot start a game",
+            "passed": true,
+            "detail": "Formato não suportado. Escolha uma ISO, CSO, CHD, ISZ, BIN ou ELF. Arquivos ZIP e 7Z precisam ser extraídos primeiro."
+          },
+          {
+            "name": "Key swap, persistence and restore",
+            "passed": true
+          },
+          {
+            "name": "Real core initializes without ISO; diagnostic is ready",
+            "passed": true,
+            "detail": {
+              "runtime": {
+                "state": "ready",
+                "text": "Emulador preparado"
+              },
+              "diagnostic": "Digital Station · diagnóstico local\nNúcleo: Play! 0.77-12-g83700b2c\nEtapa: Console preparado\nEstado: ready\nNavegador: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36\nIsolamento: true\nSharedArrayBuffer: true\nGráficos: 1× · filtro do jogo\nPolítica de segurança: nenhum bloqueio registrado\nArquivo: nenhum\nTamanho: 0 bytes\nLeituras do disco: 0\nÚltima leitura: nenhuma\n\n2026-10-16T18:58:07.224Z · Carregando módulo\n2026-10-16T18:58:07.255Z · Baixando núcleo\n2026-10-16T18:58:07.296Z · Verificando processos do navegador\n2026-10-16T18:58:07.296Z · Compilando o núcleo WebAssembly.\n2026-10-16T18:58:07.303Z · Verificando processos locais e memória compartilhada.\n2026-10-16T18:58:07.317Z · Comunicação e memória compartilhada confirmadas.\n2026-10-16T18:58:07.329Z · Código dos processos carregado pela página.\n2026-10-16T18:58:07.329Z · Iniciando núcleo e processos\n2026-10-16T18:58:07.364Z · Play! - Version 0.77-12-g83700b2c\r\n2026-10-16T18:58:07.364Z · Preparando console\n2026-10-16T18:58:07.683Z · Gráficos preparados: 1× · filtro do jogo.\n2026-10-16T18:58:07.683Z · Console preparado.",
+              "notice": "Emulador preparado. Selecione o arquivo do jogo e clique em Iniciar jogo."
+            }
+          },
+          {
+            "name": "Empty card cannot download or request confirmation",
+            "passed": true,
+            "detail": "O cartão ainda está vazio. Salve o progresso dentro do jogo antes de baixar o SAVE."
+          },
+          {
+            "name": "Import synthetic SAVE and confirm delayed IndexedDB backup",
+            "passed": true,
+            "detail": {
+              "elapsedMs": 1253,
+              "status": "Último backup local: 16/10/2026, 18:58:09. Disponível neste navegador."
+            }
+          },
+          {
+            "name": "SAVE import/download preserves bytes; confirmation is explicit",
+            "passed": true,
+            "detail": {
+              "destination": "/workspace/scratch/graphics-review/functional/graphics-mobile-import-roundtrip.dssave",
+              "suggestedFilename": "Digital-Station-2026-10-16T18-58-09-114Z.dssave",
+              "files": 1
+            }
+          },
+          {
+            "name": "Reload discovers IndexedDB backup and restores it explicitly",
+            "passed": true,
+            "detail": {
+              "status": "Preparando backup local após a gravação no cartão…",
+              "file": "Recuperado-Digital-Station.dssave"
+            }
+          },
+          {
+            "name": "Recovered SAVE survives attachment to real core and export",
+            "passed": true,
+            "detail": {
+              "coreState": "ready",
+              "diagnosticStateReady": true,
+              "destination": "/workspace/scratch/graphics-review/functional/graphics-mobile-recovered-roundtrip.dssave",
+              "suggestedFilename": "Digital-Station-2026-10-16T18-58-10-464Z.dssave",
+              "files": 1
+            }
+          },
+          {
+            "name": "Delete backup requires confirmation and preserves active SAVE",
+            "passed": true,
+            "detail": {
+              "dialogs": [
+                {
+                  "type": "confirm",
+                  "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+                  "action": "dismiss"
+                },
+                {
+                  "type": "confirm",
+                  "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+                  "action": "accept"
+                }
+              ],
+              "persistedDeletion": true,
+              "codecOperations": [
+                "decode",
+                "encode",
+                "validate"
+              ],
+              "codecWorkerCount": 2
+            }
+          }
+        ],
+        "pageErrors": [],
+        "consoleErrors": [],
+        "expectedValidationErrors": [
+          "Digital Station: Error: Formato não suportado. Escolha uma ISO, CSO, CHD, ISZ, BIN ou ELF. Arquivos ZIP e 7Z precisam ser extraídos primeiro.\n    at Jt (http://127.0.0.1:4173/assets/index-Eu4FqDgF.js:38:8065)\n    at http://127.0.0.1:4173/assets/index-Eu4FqDgF.js:39:5855\n    at async Qe (http://127.0.0.1:4173/assets/index-Eu4FqDgF.js:39:5842)"
+        ],
+        "networkFailures": [],
+        "optionalToolbarFailures": [],
+        "dialogs": [
+          {
+            "type": "confirm",
+            "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+            "action": "dismiss"
+          },
+          {
+            "type": "confirm",
+            "message": "Excluir o backup deste navegador? Seu cartão da sessão e os arquivos SAVE baixados serão preservados.",
+            "action": "accept"
+          }
+        ],
+        "core_state": "ready",
+        "codec_operations": [
+          "decode",
+          "encode",
+          "validate"
+        ]
+      }
+    ]
+  },
+  "limitations": "Native Chromium HTTP loopback. No ISO or real gameplay. Mobile viewport/touch emulation is not physical mobile performance testing. Browser API values are partial/approximate; no FPS prediction."
+}
