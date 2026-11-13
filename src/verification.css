@@ -1,0 +1,24 @@
+.verification-container { max-width: 850px; padding-block: 35px; }
+.verification-container > h1, .verification-result h1 { font-size: clamp(32px, 5vw, 56px); line-height: 1.12; margin: 22px 0; }
+.verification-container > p, .verification-result > p { max-width: 68ch; color: #536678; line-height: 1.75; }
+.verification-container h1 span { color: #8a6938; }
+.verification-form { display: grid; gap: 12px; margin: 30px 0; padding: 28px; border: 1px solid #d6e0e8; background: #f3f6f8; border-radius: 8px; }
+.verification-form label { font-weight: 600; font-size: 14px; }
+.verification-form input { min-width: 0; width: 100%; border: 1px solid #bdcad5; border-radius: 4px; min-height: 48px; padding: 12px; font: inherit; }
+.verification-form .button { justify-self: start; }
+.verification-result { padding: clamp(24px, 5vw, 48px); border: 1px solid #d6e0e8; border-top: 5px solid #9caab4; background: #fff; border-radius: 8px; box-shadow: 0 12px 40px #1231490a; }
+.verification-result--active { border-top-color: #238063; }
+.verification-result--revoked, .verification-result--expired { border-top-color: #a65535; }
+.status-pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: .08em; background: #edf1f5; color: #314b61; }
+.status-active { color: #176047; background: #e5f4ed; }
+.status-expired, .status-revoked { color: #843a20; background: #f9ece5; }
+.status-pending, .status-unavailable { color: #7f5e21; background: #fcf3df; }
+.credential-fields { display: grid; grid-template-columns: 1fr 1fr; margin: 32px 0; gap: 20px; }
+.credential-fields > div { min-width: 0; border-bottom: 1px solid #e4e9ed; padding-bottom: 16px; }
+.credential-fields > div:first-child, .credential-fields > div:nth-child(3) { grid-column: 1 / -1; }
+.credential-fields dt { color: #687d8d; font-size: 12px; margin-bottom: 8px; }
+.credential-fields dd { margin: 0; font-size: 17px; font-weight: 600; color: #152e46; overflow-wrap: anywhere; }
+.verification-help { font-size: 13px; line-height: 1.7; }
+.interest-form [aria-invalid="true"] { border-color: #a64132; box-shadow: 0 0 0 1px #a64132; }
+.verification-result .button-row { margin-top: 28px; }
+@media (max-width: 480px) { .credential-fields { grid-template-columns: 1fr; } .verification-form { padding: 20px; } }

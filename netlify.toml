@@ -1,0 +1,29 @@
+[build]
+  ignore = "node scripts/netlify-ignore.cjs"
+  command = "npm ci --include=dev --no-audit --no-fund && npm test && npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/verificar/*"
+  to = "/.netlify/functions/verify?token=:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/contato"
+  to = "/.netlify/functions/contact"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+

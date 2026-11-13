@@ -1,0 +1,335 @@
+{
+  "date": "2026-11-13",
+  "unit": {
+    "passed": 53,
+    "failed": 0,
+    "skipped": 0
+  },
+  "ui": {
+    "scope": "Integrated Vite site + actual local contact API. Synthetic test submissions are written to the private development file only. No email, credential token, or real registration submitted.",
+    "targets": [
+      {
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "pages": [
+          {
+            "route": "/",
+            "width": 1440,
+            "scrollWidth": 1440,
+            "h1": "Conhecimento técnico.\nVisão de obra.",
+            "headerWidth": 1440,
+            "brandRight": 330.953125,
+            "toggleLeft": 0
+          },
+          {
+            "route": "/cursos",
+            "width": 1440,
+            "scrollWidth": 1440,
+            "h1": "Seu próximo aprendizado\ncomeça aqui.",
+            "headerWidth": 1440,
+            "brandRight": 330.953125,
+            "toggleLeft": 0
+          },
+          {
+            "route": "/cursos/fiscalizacao-pavimentacao",
+            "width": 1440,
+            "scrollWidth": 1440,
+            "h1": "Fiscalização de Obras de Pavimentação",
+            "headerWidth": 1440,
+            "brandRight": 330.953125,
+            "toggleLeft": 0
+          },
+          {
+            "route": "/institucional",
+            "width": 1440,
+            "scrollWidth": 1440,
+            "h1": "O conhecimento é a base.\nO desenvolvimento, o caminho.",
+            "headerWidth": 1440,
+            "brandRight": 330.953125,
+            "toggleLeft": 0
+          },
+          {
+            "route": "/contato",
+            "width": 1440,
+            "scrollWidth": 1440,
+            "h1": "Seu desenvolvimento\nmerece um próximo passo.",
+            "headerWidth": 1440,
+            "brandRight": 330.953125,
+            "toggleLeft": 0
+          },
+          {
+            "route": "/privacidade",
+            "width": 1440,
+            "scrollWidth": 1440,
+            "h1": "Seus dados.\nNosso cuidado.",
+            "headerWidth": 1440,
+            "brandRight": 330.953125,
+            "toggleLeft": 0
+          },
+          {
+            "route": "/inexistente",
+            "width": 1440,
+            "scrollWidth": 1440,
+            "h1": "Vamos voltar\nao ponto de partida?",
+            "headerWidth": 1440,
+            "brandRight": 330.953125,
+            "toggleLeft": 0
+          }
+        ],
+        "pageErrors": [],
+        "networkFailures": [],
+        "checks": [
+          "Course CTA preselects the requested course",
+          "Required fields block an empty submission",
+          "Consent is required before any API request",
+          "Actual local API confirms contact then shows thank-you route; no email"
+        ]
+      },
+      {
+        "viewport": {
+          "width": 350,
+          "height": 800
+        },
+        "pages": [
+          {
+            "route": "/",
+            "width": 350,
+            "scrollWidth": 350,
+            "h1": "Conhecimento técnico.\nVisão de obra.",
+            "headerWidth": 350,
+            "brandRight": 187.59375,
+            "toggleLeft": 288
+          },
+          {
+            "route": "/cursos",
+            "width": 350,
+            "scrollWidth": 350,
+            "h1": "Seu próximo aprendizado\ncomeça aqui.",
+            "headerWidth": 350,
+            "brandRight": 187.59375,
+            "toggleLeft": 288
+          },
+          {
+            "route": "/cursos/fiscalizacao-pavimentacao",
+            "width": 350,
+            "scrollWidth": 350,
+            "h1": "Fiscalização de Obras de Pavimentação",
+            "headerWidth": 350,
+            "brandRight": 187.59375,
+            "toggleLeft": 288
+          },
+          {
+            "route": "/institucional",
+            "width": 350,
+            "scrollWidth": 350,
+            "h1": "O conhecimento é a base.\nO desenvolvimento, o caminho.",
+            "headerWidth": 350,
+            "brandRight": 187.59375,
+            "toggleLeft": 288
+          },
+          {
+            "route": "/contato",
+            "width": 350,
+            "scrollWidth": 350,
+            "h1": "Seu desenvolvimento\nmerece um próximo passo.",
+            "headerWidth": 350,
+            "brandRight": 187.59375,
+            "toggleLeft": 288
+          },
+          {
+            "route": "/privacidade",
+            "width": 350,
+            "scrollWidth": 350,
+            "h1": "Seus dados.\nNosso cuidado.",
+            "headerWidth": 350,
+            "brandRight": 187.59375,
+            "toggleLeft": 288
+          },
+          {
+            "route": "/inexistente",
+            "width": 350,
+            "scrollWidth": 350,
+            "h1": "Vamos voltar\nao ponto de partida?",
+            "headerWidth": 350,
+            "brandRight": 187.59375,
+            "toggleLeft": 288
+          }
+        ],
+        "pageErrors": [],
+        "networkFailures": [],
+        "checks": [
+          "Mobile menu opens, navigates and closes with Escape",
+          "Course CTA preselects the requested course",
+          "Required fields block an empty submission",
+          "Consent is required before any API request",
+          "Actual local API confirms contact then shows thank-you route; no email"
+        ]
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "pages": [
+          {
+            "route": "/",
+            "width": 390,
+            "scrollWidth": 390,
+            "h1": "Conhecimento técnico.\nVisão de obra.",
+            "headerWidth": 390,
+            "brandRight": 187.59375,
+            "toggleLeft": 328
+          },
+          {
+            "route": "/cursos",
+            "width": 390,
+            "scrollWidth": 390,
+            "h1": "Seu próximo aprendizado\ncomeça aqui.",
+            "headerWidth": 390,
+            "brandRight": 187.59375,
+            "toggleLeft": 328
+          },
+          {
+            "route": "/cursos/fiscalizacao-pavimentacao",
+            "width": 390,
+            "scrollWidth": 390,
+            "h1": "Fiscalização de Obras de Pavimentação",
+            "headerWidth": 390,
+            "brandRight": 187.59375,
+            "toggleLeft": 328
+          },
+          {
+            "route": "/institucional",
+            "width": 390,
+            "scrollWidth": 390,
+            "h1": "O conhecimento é a base.\nO desenvolvimento, o caminho.",
+            "headerWidth": 390,
+            "brandRight": 187.59375,
+            "toggleLeft": 328
+          },
+          {
+            "route": "/contato",
+            "width": 390,
+            "scrollWidth": 390,
+            "h1": "Seu desenvolvimento\nmerece um próximo passo.",
+            "headerWidth": 390,
+            "brandRight": 187.59375,
+            "toggleLeft": 328
+          },
+          {
+            "route": "/privacidade",
+            "width": 390,
+            "scrollWidth": 390,
+            "h1": "Seus dados.\nNosso cuidado.",
+            "headerWidth": 390,
+            "brandRight": 187.59375,
+            "toggleLeft": 328
+          },
+          {
+            "route": "/inexistente",
+            "width": 390,
+            "scrollWidth": 390,
+            "h1": "Vamos voltar\nao ponto de partida?",
+            "headerWidth": 390,
+            "brandRight": 187.59375,
+            "toggleLeft": 328
+          }
+        ],
+        "pageErrors": [],
+        "networkFailures": [],
+        "checks": [
+          "Mobile menu opens, navigates and closes with Escape",
+          "Course CTA preselects the requested course",
+          "Required fields block an empty submission",
+          "Consent is required before any API request",
+          "Actual local API confirms contact then shows thank-you route; no email"
+        ]
+      }
+    ]
+  },
+  "credential": {
+    "serverLookup": true,
+    "unknownReturns404": true,
+    "browserLookup": true,
+    "cardFields": true,
+    "photoLocalOnly": true,
+    "publicBundlePrivateDataLeak": false,
+    "pageErrors": 0,
+    "cardTransport": "HTML loaded into isolated browser page; native file URL blocked by managed-browser policy."
+  },
+  "sourceSha256": {
+    "src/company.js": "fe2dd7e184b9f9f0909cc94b0a6380c57181040ff225902233321c22e43738c9",
+    "src/contact-validation.js": "f3c3491e3483a071c6e38d163d2594e854d11be0a2ab11c9f19754db5d19577d",
+    "src/credential-status.js": "2a7036940b4d3c1766becc140ab8b4d1cf3891e6082be0106efe485dd9937e85",
+    "src/credential-url.js": "f20a4041b69ff9e8714f0f02bd5d9a3d7afac7742ecf0fde1786475a8e9cffea",
+    "src/main.js": "561688b968ba3c60a0d86e3e89d6393f46383f3c4d4a02a0bc0017199e967672",
+    "src/pages.js": "8f308dfdd2c2cb087f2cffe227eed12f99dd6c297d06eac066a2677858202a2c",
+    "src/styles.css": "20b30a08978ec741c99142e678605e4c1c3ab1a1be788af56a7898caf219d9b7",
+    "src/verification.css": "f068736a83f55277c7e05f567e45569ed2a967268cfacb0498421586b99e739d",
+    "netlify/functions/contact.mjs": "b332fd1f1543ab729bbbe43fea4254c6f1a45c28a788d2d69e5dba6fed5b462b",
+    "netlify/functions/verify.mjs": "710a7986ae62d2e625fe9d79f5987570e86434a6323a9f4bfb7dfaf22a99fd85",
+    "scripts/build-card.mjs": "02d9808b6a834a81177f11b3a00b0ce32481a177cf94cdba92f8739a24101915"
+  },
+  "publication": {
+    "created": false,
+    "netlifyAuthenticated": false,
+    "workflow": "Dedicated jcb-engenharia-site Git branch imported into a NEW Netlify project. Production emulator branch/site unchanged.",
+    "initialAccountLinkPending": true
+  },
+  "card": {
+    "layoutPreview": true,
+    "issuedFinal": false,
+    "validThrough": "2027-03-31",
+    "emissionFieldRemoved": true,
+    "qrIndependentDecodePassed": true,
+    "qrTestUsesReservedExampleDomain": true,
+    "realQrPendingActualProductionUrl": true
+  },
+  "notes": [
+    "UI contacts are synthetic development records stored locally.",
+    "Netlify Blobs persistence has not been tested remotely.",
+    "No public domain or site name availability is claimed."
+  ],
+  "contactErrorChecks": {
+    "invalidPhoneMarked": true,
+    "fieldMessageVisible": true,
+    "honeypotNotConfirmed": true,
+    "remoteEmailSent": false
+  },
+  "credentialArchitecture": {
+    "privateNetlifyBlobsPerSite": true,
+    "publicRepositoryContainsPrivateRecords": false,
+    "publicRepositoryContainsKeys": false,
+    "issuerAdminUsesPrivate256BitKey": true,
+    "onlyOneWayAdminDigestInServerSource": true,
+    "cleanBuildWithoutPrivateFilesPassed": true
+  },
+  "previousLocalFunctionBundle": {
+    "package": "@netlify/zip-it-and-ship-it@16.6.0",
+    "offlineBundleOnly": true,
+    "functions": [
+      {
+        "name": "contact",
+        "runtime": "js",
+        "runtimeAPIVersion": 2,
+        "bundler": "nft",
+        "size": 365948,
+        "path": "/workspace/scratch/jcb-function-review/bundles/contact.zip",
+        "privateCredentialImported": false,
+        "rawTokenFileIncluded": false
+      },
+      {
+        "name": "verify",
+        "runtime": "js",
+        "runtimeAPIVersion": 2,
+        "bundler": "nft",
+        "size": 339954,
+        "path": "/workspace/scratch/jcb-function-review/bundles/verify.zip",
+        "privateCredentialImported": true,
+        "rawTokenFileIncluded": false
+      }
+    ]
+  }
+}
