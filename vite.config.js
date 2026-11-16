@@ -24,12 +24,11 @@ function apiAdapter() {
     const verify = createVerifyHandler(credential);
     server.middlewares.use(async (req, res, next) => {
       const source = new URL(req.url, `http://${req.headers.host}`);
-      if (!source.pathname.startsWith('/api/')) return next();
+      const directVerification = source.pathname === '/.netlify/functions/verify';
+      if (!source.pathname.startsWith('/api/') && !directVerification) return next();
       let target = source;
       let handler;
-      if (source.pathname.startsWith('/api/verificar/')) {
-        target = new URL('/.netlify/functions/verify', source.origin);
-        target.searchParams.set('token', source.pathname.slice('/api/verificar/'.length));
+      if (directVerification || source.pathname.startsWith('/api/verificar/')) {
         handler = verify;
       } else if (source.pathname === '/api/contato') handler = localContact;
       else { res.statusCode = 404; return res.end(); }

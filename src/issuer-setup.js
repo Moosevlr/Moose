@@ -284,10 +284,31 @@ export async function mountIssuerSetup(mainElement) {
         acknowledged = true;
         setupKey = null;
       }
-      const response = await request(`/api/verificar/${encodeURIComponent(setup.token)}`, { headers: { Accept: 'application/json' } });
-      const verified = await response.json();
-      if (!response.ok || verified.status !== 'active' || PUBLIC_FIELDS.some(field => verified[field] !== record[field])) {
-        throw new Error('A consulta ainda não confirmou um registro ativo com estes mesmos dados. Nenhum cartão foi liberado nesta tela.');
+      // Call the same-origin function directly: Functions v2 can preserve the
+      // original alias URL instead of the rewritten token query string.
+      const response = await request(`/.netlify/functions/verify?token=${encodeURIComponent(setup.token)}`, { headers: { Accept: 'application/json' } });
+      if (!response.ok) {
+        const diagnostic = response.headers.get('X-JCB-Verification');
+        const diagnostics = {
+          'code-rejected': 'CONSULTA-ENDEREÇO',
+          'not-found': 'REGISTRO-NÃO-LOCALIZADO',
+          'storage-unavailable': 'CONSULTA-INDISPONÍVEL',
+          'record-unavailable': 'REGISTRO-INDISPONÍVEL',
+        };
+        const code = Object.hasOwn(diagnostics, diagnostic) ? diagnostics[diagnostic] : response.status === 404 ? 'REGISTRO-NÃO-LOCALIZADO' : response.status === 503 ? 'CONSULTA-INDISPONÍVEL' : 'CONSULTA-RECUSADA';
+        throw new Error(`A consulta ainda não confirmou o registro (HTTP ${response.status}; ${code}). Nenhum cartão foi liberado. Use “Conferir ativação novamente” para repetir somente a consulta.`);
+      }
+      let verified;
+      try { verified = await response.json(); } catch {
+        throw new Error(`A consulta ainda não confirmou o registro: resposta inválida (HTTP ${response.status}; RESPOSTA-INVÁLIDA). Nenhum cartão foi liberado.`);
+      }
+      if (!verified || verified.status !== 'active') {
+        const states = { pending: 'CONFIRMAÇÃO-PENDENTE', expired: 'VALIDADE-ENCERRADA', revoked: 'REGISTRO-REVOGADO', invalid: 'REGISTRO-INVÁLIDO' };
+        const state = typeof verified?.status === 'string' && Object.hasOwn(states, verified.status) ? states[verified.status] : 'ESTADO-NÃO-CONFIRMADO';
+        throw new Error(`A consulta ainda não confirmou um registro ativo (HTTP ${response.status}; ${state}). Nenhum cartão foi liberado.`);
+      }
+      if (PUBLIC_FIELDS.some(field => verified[field] !== record[field])) {
+        throw new Error(`A consulta ainda não confirmou os mesmos dados aprovados (HTTP ${response.status}; DADOS-DIVERGENTES). Nenhum cartão foi liberado. Fale com a instituição.`);
       }
       await showCard();
       if (alive()) { feedback.textContent = 'Dados e registro ativo conferidos pela consulta institucional.'; button.hidden = true; }

@@ -59,6 +59,43 @@ test('stored verification reads a private site store by SHA-256 with strong cons
   for (const privateValue of [TOKEN, TOKEN_HASH, 'Synthetic approval only', 'PRIVATE']) assert(!serialized.includes(privateValue));
 });
 
+test('original friendly path and rewritten function URL consult the same authoritative record', async () => {
+  const calls = [];
+  const verify = storedHandler(async (key, options) => {
+    calls.push({ key, options });
+    return source();
+  });
+  for (const url of [
+    `https://example.test/api/verificar/${TOKEN}`,
+    `https://example.test/api/verificar/${TOKEN}/`,
+    `https://example.test/api/verificar/${TOKEN}?token=${TOKEN}`,
+    `https://example.test/.netlify/functions/verify?token=${TOKEN}`,
+  ]) {
+    const result = await verify(new Request(url));
+    assert.equal(result.status, 200);
+    assert.equal((await result.json()).status, 'active');
+  }
+  assert.equal(calls.length, 4);
+  assert(calls.every(call => call.key === TOKEN_HASH && call.options.consistency === 'strong'));
+});
+
+test('conflicting, duplicate and malformed path codes are rejected before storage access', async () => {
+  let reads = 0;
+  const verify = storedHandler(async () => { reads++; return source(); });
+  for (const url of [
+    `https://example.test/api/verificar/${TOKEN}?token=${'A'.repeat(43)}`,
+    `https://example.test/api/verificar/${TOKEN}?token=${TOKEN}&token=${TOKEN}`,
+    `https://example.test/api/verificar/short?token=${TOKEN}`,
+    `https://example.test/api/verificar/${TOKEN}/extra?token=${TOKEN}`,
+    `https://example.test/api/verificar/${TOKEN}?token=`,
+  ]) {
+    const response = await verify(new Request(url));
+    await expectMinimum(response, 404);
+    assert.equal(response.headers.get('x-jcb-verification'), 'code-rejected');
+  }
+  assert.equal(reads, 0);
+});
+
 test('an empty store and unknown digest return the same minimal 404', async () => {
   for (const missing of [null, undefined]) await expectMinimum(await storedHandler(async () => missing)(request()), 404);
 });
@@ -172,7 +209,7 @@ test('issuer persistence and strong verification keep multiple credentials indep
   });
   for (const record of [recordA, recordB]) assert.equal((await issue(writeRequest(record))).status, 201);
   assert.equal(database.size, 2);
-  const activeA = await (await verify(request())).json();
+  const activeA = await (await verify(new Request(`https://example.test/api/verificar/${TOKEN}`))).json();
   const activeB = await (await verify(request({ token: tokenB }))).json();
   assert.deepEqual([activeA.status, activeA.enrollment, activeA.holderName], ['active', 'TEST-A', 'ALUNO A']);
   assert.deepEqual([activeB.status, activeB.enrollment, activeB.holderName], ['active', 'TEST-B', 'ALUNO B']);

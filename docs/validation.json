@@ -5,10 +5,10 @@
   "unit": {
     "status": "passed",
     "command": "npm test",
-    "passed": 70,
+    "passed": 72,
     "failed": 0,
     "skipped": 0,
-    "evidence": "/workspace/scratch/jcb-review/final-unit-tests.log",
+    "evidence": "/workspace/scratch/jcb-review/route-fix-unit-tests.log",
     "coverage": [
       "server-date validity including the Sao Paulo end-of-day boundary",
       "revocation and pending status precedence",
@@ -17,14 +17,15 @@
       "setup snapshot binding and atomic onlyIfNew creation",
       "setup expiry before body, after body and after slow storage initialization",
       "native Netlify Forms submission configuration",
-      "independent QR decoding"
+      "independent QR decoding",
+      "original and rewritten verification URLs, including conflicting-code rejection before storage"
     ]
   },
   "cleanExport": {
     "status": "passed",
     "privateDirectoryIncluded": false,
     "unit": {
-      "passed": 70,
+      "passed": 72,
       "failed": 0
     },
     "build": "passed",
@@ -45,7 +46,7 @@
   "browser": {
     "issuer": {
       "status": "passed_local",
-      "passed": 14,
+      "passed": 21,
       "failed": 0,
       "evidence": "/workspace/scratch/jcb-issuer-ui-review/report.json",
       "scope": "Local browser scenarios and controlled API responses; not proof of hosted Blobs persistence.",
@@ -58,7 +59,8 @@
         "QR decoded from PNG/SVG/card exports with and without photo",
         "original photo bytes preserved",
         "one-page PDF at 85.6 by 54 mm",
-        "no third-party requests"
+        "no third-party requests",
+        "direct same-origin function query, safe HTTP diagnostics and retry after 404 without repeating activation"
       ]
     },
     "siteAndForms": {
@@ -66,9 +68,17 @@
       "routesPassed": 21,
       "interactionsPassed": 26,
       "failed": 0,
-      "viewportsPx": [1440, 350, 390],
+      "viewportsPx": [
+        1440,
+        350,
+        390
+      ],
       "interceptedPosts": 9,
-      "responseScenarios": [503, 422, 200],
+      "responseScenarios": [
+        503,
+        422,
+        200
+      ],
       "pageErrors": 0,
       "networkFailures": 0,
       "externalRequests": 0,
@@ -209,5 +219,33 @@
   "notes": [
     "No live registry state, inbox delivery or production deployment is inferred from local fixtures.",
     "Local browser suites are complete; production HTTP, real Blobs state, hosted Forms processing and email delivery remain unconfirmed."
-  ]
+  ],
+  "verificationRouting": {
+    "fix": "Supports original friendly path and function token query; clients call the function directly on the same origin",
+    "localReproduction": {
+      "before": {
+        "originalPath": 404,
+        "directQuery": 200
+      },
+      "after": {
+        "originalPath": 200,
+        "directQuery": 200
+      }
+    },
+    "codeAmbiguityRejected": true,
+    "localAdapterPreservesOriginalUrl": true,
+    "integratedBrowser": {
+      "passed": 2,
+      "viewports": [
+        390,
+        1440
+      ],
+      "realPreviewAdapter": true,
+      "artificialQueryRewrite": false,
+      "hostedStore": false,
+      "evidence": "/workspace/scratch/jcb-review/route-fix-http-browser.json"
+    },
+    "hostedCauseConfirmed": false,
+    "diagnosticsExcludePrivateValues": true
+  }
 }

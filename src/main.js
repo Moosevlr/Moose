@@ -47,7 +47,7 @@ function renderVerification(data, error = false) {
 async function loadVerification(token, version) {
   if (!/^[A-Za-z0-9_-]{43}$/.test(token)) { renderVerification({ status: 'invalid' }); return; }
   try {
-    const response = await fetch(`/api/verificar/${encodeURIComponent(token)}`, { cache: 'no-store', referrerPolicy: 'no-referrer', headers: { Accept: 'application/json' } });
+    const response = await fetch(`/.netlify/functions/verify?token=${encodeURIComponent(token)}`, { cache: 'no-store', referrerPolicy: 'no-referrer', headers: { Accept: 'application/json' } });
     const data = await response.json();
     if (version !== navigationVersion) return;
     if (response.status === 404) renderVerification({ status: 'invalid' });
