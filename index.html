@@ -11,6 +11,17 @@
   </head>
   <body>
     <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+    <!-- Netlify detects this schema in the built HTML; the visible form is rendered by the app. -->
+    <form id="interest-form-blueprint" name="interesse" method="POST" action="/obrigado" data-netlify="true" netlify-honeypot="website" hidden>
+      <input type="hidden" name="form-name" value="interesse" />
+      <input name="name" />
+      <input type="email" name="email" />
+      <input type="tel" name="phone" />
+      <input name="course" />
+      <textarea name="message"></textarea>
+      <input type="checkbox" name="consent" value="true" />
+      <input name="website" />
+    </form>
     <div id="app"></div>
     <noscript>Ative o JavaScript para navegar no catálogo e consultar o registro institucional. Contato: jbeckmancordeiro@gmail.com.</noscript>
   </body>

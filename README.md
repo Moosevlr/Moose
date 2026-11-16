@@ -1,74 +1,72 @@
 # JCB ENGENHARIA · Ensino Técnico
 
-Site institucional independente do Digital Station. Dados fornecidos pelo responsável: José Cleber Beckman Cordeiro, Belém–PA, `jbeckmancordeiro@gmail.com`, CNPJ `35.677.653/0001-94`. Não foram inventados telefone, endereço de rua, credenciamento, preços, carga horária ou abertura de turmas.
+Site institucional independente do Digital Station. Informações fornecidas pelo responsável: José Cleber Beckman Cordeiro, Belém–PA, `jbeckmancordeiro@gmail.com`, CNPJ `35.677.653/0001-94`. O catálogo reúne sete propostas de cursos livres online; turmas, datas, carga horária e valores são confirmados pela instituição. Não se declara credenciamento de curso técnico regulamentado ou emissão pela UNE.
 
-## Conteúdo e funcionamento
+## Hospedagem e estado atual
 
-- Home, instituição, catálogo com sete cursos livres online, ementas propostas, contato, privacidade e consulta da carteirinha.
-- Cursos: fiscalização de pavimentação, misturas asfálticas, terraplenagem/bases, medições rodoviárias, drenagem/conservação, sinalização/segurança e análise tecnológica de concreto.
-- `POST /api/contato`: validação no servidor, consentimento, honeypot, mesma origem, tamanho limitado e armazenamento privado em Netlify Blobs (`jcb-interesses`). Sucesso de registro somente após gravação confirmada. Nenhum e-mail é enviado automaticamente.
-- `GET /api/verificar/<token>`: consulta por código opaco de 256 bits, comparação SHA-256 segura, situação controlada pelo emissor e calendário de São Paulo. Registros ficam em Netlify Blobs privado por projeto; dados e token privados não são incorporados ao JavaScript público ou ao Git. A consulta não permite alterar ou listar registros.
-- A carteirinha usa o registro confirmado pelo responsável, mantido fora do código público. Não se declara emissão pela UNE ou credenciamento de curso técnico regulamentado.
+O usuário informou o site **https://jcb-engenharia.netlify.app/**. A vinculação inicial não precisa ser repetida. As atualizações deste projeto seguem a branch exclusiva `jcb-engenharia-site` do repositório `Moosevlr/Moose`, mantendo a produção do emulador separada. `netlify.toml` define Node 24, testes, build, Functions e publicação de `dist/`.
 
-## Desenvolvimento e testes
+O executor encontrou bloqueios de DNS/CONNECT 403 ao acessar a produção. Por isso, a resposta HTTP da hospedagem, o commit implantado, a persistência real do registro, uma submissão hospedada e a entrega de e-mail continuam **sem confirmação remota por este executor**. A URL informada pelo usuário não equivale a uma nova verificação HTTP.
+
+## Contato: Netlify Forms
+
+O formulário atual usa **Netlify Forms**, com `POST /`, dados `application/x-www-form-urlencoded`, `form-name=interesse` e um formulário estático de detecção no HTML de build. O consentimento e as validações permanecem no fluxo de envio.
+
+As notificações por e-mail dependem das configurações existentes no painel Netlify Forms e do provedor. A entrega na caixa de entrada não foi comprovada. Um teste local ou uma resposta HTTP, isoladamente, não comprova entrega de e-mail.
+
+`POST /api/contato` permanece como API legada, com validação e armazenamento privado em Blobs (`jcb-interesses`), mas **não é utilizado pela interface atual**. Seus testes não comprovam funcionamento das notificações do Netlify Forms. O Vite local também não reproduz o serviço hospedado de Forms.
+
+## Registros e validação da carteirinha
+
+`GET /api/verificar/<token>` consulta o armazenamento privado Netlify Blobs `jcb-credentials`, por projeto. A chave de consulta é o SHA-256 de um código opaco de 256 bits. A leitura forte evita usar um estado anterior após uma revogação; o token é conferido com comparação segura antes da resposta pública. Visitantes não podem cadastrar, atualizar ou listar registros.
+
+A situação usa o relógio do servidor e o calendário `America/Sao_Paulo`: `active`, `expired`, `revoked`, `pending` ou `invalid`. A data final é inclusiva. Para validade até 31/03/2027, a expiração começa em 01/04/2027 às 00h em São Paulo, correspondente a 03h UTC. Revogação prevalece sobre expiração; pendência não se transforma em confirmação pela passagem do tempo.
+
+O código público contém somente digests e metadados de confiança. Registro do aluno, foto, código de consulta, chave mestre e capability privada ficam fora do Git, de `dist/` e dos arquivos públicos. O backend não usa um registro incorporado ao bundle para fazer uma consulta parecer válida.
+
+## Ativação reservada ao responsável
+
+A API `issuer-admin` mantém a autenticação pela chave mestre privada para operações autorizadas. A ativação assistida usa uma capability separada, limitada ao **snapshot exato autorizado**, com janela configurada de sete dias. `src/setup-trust.js` contém somente os digests e o prazo; não contém a chave em texto puro.
+
+O bootstrap reservado remove o fragmento antes de carregar o módulo externo com SRI e CSP estrita. A capability não fornece poderes de administração geral. O servidor confere o fingerprint completo, a expiração antes de ler o corpo e novamente antes de iniciar a gravação, inclusive após inicialização lenta do storage.
+
+A criação usa `onlyIfNew: true`: um registro existente, inclusive revogado, produz conflito `409` e não é sobrescrito pela capability. Após o conflito, o fluxo consulta o registro existente. **Uma resposta `201` ou `409` não libera a carteirinha sozinha:** é necessário um GET posterior com `active` e correspondência integral dos dados públicos autorizados. Estados pendente, expirado, revogado, divergente ou indisponível não liberam um documento final como válido.
+
+Até essa prova remota, a primeira ativação e a emissão final permanecem sem confirmação. Não divulgar o link reservado, a capability ou a chave mestre. Não existe consulta pública de listas de alunos.
+
+## Desenvolvimento e validação local
 
 Requer Node.js 24. Use este diretório existente, sem worktrees nem alterações no projeto Moose.
 
 ```sh
-npm ci --cache /workspace/scratch/npm-cache --no-audit --no-fund
+npm ci --include=dev --no-audit --no-fund
 npm test
 npm run build
 npm run dev -- --port 4280 --strictPort
 ```
 
-O adaptador local atende as APIs. Contatos de teste são gravados em `private/dev-interesses.ndjson`; isso não demonstra gravação no serviço remoto Netlify Blobs. Não são enviados e-mails. O diretório `private/` contém o registro e o código da carteirinha e deve ser preservado entre sessões, fora de Git, ZIPs públicos e `dist/`.
+Em execução cloud, pode-se acrescentar `--cache /workspace/scratch/npm-cache` à instalação. Build e testes funcionam sem `private/`; o adaptador local lê um eventual registro privado somente ao iniciar desenvolvimento/preview. Dados sintéticos dos testes não são registros reais da instituição.
 
-Verificação concluída: 53 testes Node, incluindo leitura independente de QR; 35 checks de navegação/layout/formulário em 1440/390/350 px; consulta HTTP e browser do registro autorizado, token desconhecido 404, ausência do código privado no bundle e seleção local de foto na prévia de impressão. Relatório resumido em `docs/validation.json`.
+Estado verificado em 16/11/2026:
 
-## Carteirinha
+- **70/70 testes Node aprovados**, incluindo QR decodificado independentemente, corte de validade, leitura forte, múltiplos IDs independentes, revogação, impedimento de escrita por visitante, setup condicional e expiração após storage lento.
+- Exportação limpa sem `private/`: **70/70 testes e build aprovados**. A inspeção dos 40 arquivos exportados não encontrou os valores reais do QR/token, das chaves, do hash do token ou da matrícula.
+- QA local do emissor: **14/14 verificações aprovadas** para CSP/SRI, remoção do fragmento, rejeição de divergências, fluxo desktop `201` e mobile `409`, QR e impressão. Essas respostas de teste não comprovam gravação no Blobs de produção.
+- QA atual de navegação, layout e formulário: **21 rotas e 26 interações aprovadas**, em 1440/350/390 px. Foram interceptados nove POSTs com respostas 503/422/200, sem mensagem real enviada; zero erros de página, falhas de requests ou recursos externos. Blueprint de Forms, pré-seleção do curso, bloqueio do honeypot e prevenção de envio duplicado foram conferidos. As contagens antigas não são reutilizadas.
+- E-mail e persistência hospedada: **pendentes de confirmação remota**.
+
+Escopos e evidências estão em `docs/validation.json`.
+
+## Carteirinha privada e impressão
+
+Na cópia do responsável com os arquivos privados necessários:
 
 ```sh
 npm run card -- --draft
 ```
 
-Cria `private/carteirinha-previa.html`, com dimensões de 85,6 × 54 mm, validade 31/03/2027 e sem campo de emissão. A fotografia original pode ser escolhida localmente no navegador, sem upload. O arquivo é uma prévia e não contém QR definitivo. A imagem ilustrativa editada no chat também está marcada como prévia; não deve ser apresentada como documento final publicado.
+A prévia tem 85,6 × 54 mm, validade 31/03/2027 e não possui QR definitivo. A fotografia original é selecionada localmente, com aparência preservada e sem upload. A QA local confirmou preservação dos bytes da foto e PDF de uma página no tamanho da carteirinha.
 
-O comando sem `--draft` somente funciona depois de existir `private/publication.json` com `siteName`, `productionUrl` real, `verifiedAt` e `verified: true`. A URL deve ser a principal estável, não um permalink temporário. Após conferir a publicação e a API, execute:
+O comando final `npm run card` exige `private/publication.json` com publicação real verificada. O documento e o QR definitivos só devem ser liberados após a consulta real corresponder ao registro autorizado. Use a URL principal estável da JCB, não um permalink temporário.
 
-```sh
-npm run card
-```
-
-Os arquivos finais ficam em `private/`: `carteirinha-final.html`, `qr-final.svg`, `qr-final.png` e `verification-url.json`. Nunca publique o arquivo da carteirinha ou sua foto junto com o site institucional. O código do QR abre a consulta do registro, sem expor foto ou documentos pessoais.
-
-## Publicação automática em um NOVO projeto Netlify
-
-Este código deve usar a branch `jcb-engenharia-site` do GitHub `Moosevlr/Moose`, em um projeto Netlify exclusivo da JCB. A branch e o site de produção do emulador permanecem separados. O guard `scripts/netlify-ignore.cjs` ignora builds da JCB caso sejam executados pelo projeto Netlify antigo ou sem identificação de projeto.
-
-A API de contas do Netlify não está acessível neste ambiente. O caminho suportado para a vinculação inicial é a integração GitHub já autorizada pelo usuário:
-
-1. Abrir https://app.netlify.com/start e importar um projeto existente do GitHub.
-2. Selecionar `Moosevlr/Moose` e **branch de produção `jcb-engenharia-site`**, criando um novo projeto chamado `jcb-engenharia` ou outro nome disponível.
-3. Manter raiz do repositório como base. `netlify.toml` configura Node 24, testes, build, funções e publicação de `dist`.
-4. Concluir a criação do novo projeto e obter sua URL principal HTTPS. Não escolher o site do emulador, não editar sua branch de produção e não usar um permalink temporário como endereço da carteirinha.
-
-Não usar o Deploy Button que copia o repositório: a integração deve acompanhar esta branch existente para receber as atualizações. Novos pushes nesta branch atualizam somente o projeto vinculado a ela.
-
-### Registro privado da carteirinha
-
-O site novo inicia com o armazenamento privado vazio. A função `issuer-admin` exige uma chave aleatória de 256 bits para cadastrar ou atualizar registros. Apenas seu digest SHA-256 está no código servidor (`src/server-trust.js`); a chave e os registros ficam em `private/`, fora do Git e dos arquivos públicos. Não existe interface pública de administração nem listagem de alunos. A chave não representa autenticação da conta Netlify e a função não encaminha solicitações à API de contas.
-
-Após o usuário informar a URL principal do NOVO projeto, o responsável pelo desenvolvimento deve executar localmente:
-
-```text
-node scripts/activate-credential.mjs https://NOME-REAL-DO-PROJETO.netlify.app
-npm run card
-```
-
-O primeiro comando publica o registro autorizado no armazenamento privado da JCB e exige confirmação pela consulta pública antes de registrar `verified: true`. Ele recusa o domínio antigo do emulador. O segundo gera a carteirinha e o QR definitivos. Não publicar nem imprimir como final antes de testar a consulta e ler o QR com decodificador independente.
-
-### Desenvolvimento em uma cópia limpa
-
-O build e os testes não exigem arquivos de `private/`. O adaptador de API local lê esses arquivos somente quando é iniciado o servidor de desenvolvimento/preview. A produção consulta os registros no armazenamento privado do novo projeto Netlify. Não criar registros fictícios para fazer uma consulta parecer válida.
-
-Nenhum novo domínio é considerado criado até a confirmação real da plataforma. Persistência de contatos, funções e QR ainda devem ser verificados na hospedagem após a vinculação inicial.
+Os arquivos privados de impressão e QR ficam em `private/`. Não publique a carteirinha, a fotografia ou o pacote reservado junto com o site institucional. O QR aponta para a consulta por código opaco, sem PII na URL.

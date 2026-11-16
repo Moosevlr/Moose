@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { setImmediate } from 'node:timers/promises';
 import { createIssuerAdminHandler } from '../netlify/functions/issuer-admin.mjs';
+import { selectIssuerRecord } from '../src/issuer-record.js';
 
 // Test-only keys and records; no issuer key, bearer token or local record is read.
 const KEY = Buffer.alloc(32, 73).toString('base64url');
@@ -35,6 +36,7 @@ function setup(overrides = {}) {
   const activity = { opened: 0 };
   const handler = createIssuerAdminHandler({
     expectedKeyHash: KEY_HASH,
+    setupKeyHash: null, setupRecordHash: null, setupExpiresAt: null,
     now: () => NOW,
     storeFactory: async () => {
       activity.opened++;
@@ -221,4 +223,144 @@ test('issuer admin success and rejection responses prevent caching and indexing 
     assert.equal(response.headers.get('access-control-allow-origin'), null);
     assert.match(response.headers.get('content-type'), /application\/json.*charset=utf-8/i);
   }
+});
+
+const SETUP_KEY = Buffer.alloc(32, 75).toString('base64url');
+const SETUP_HASH = createHash('sha256').update(SETUP_KEY).digest('hex');
+const SNAPSHOT_HASH = createHash('sha256').update(JSON.stringify(selectIssuerRecord(source()))).digest('hex');
+const SETUP_EXPIRY = '2026-11-13T16:00:00.000Z';
+const setupRequest = (options = {}) => request({ authorization: `Bearer ${SETUP_KEY}`, ...options });
+const capability = (overrides = {}) => setup({
+  setupKeyHash: SETUP_HASH, setupRecordHash: SNAPSHOT_HASH, setupExpiresAt: SETUP_EXPIRY,
+  ...overrides,
+});
+
+test('issuer snapshot selection has stable field order, ignores extras and never selects inherited fields', () => {
+  const input = Object.assign(Object.create({ hidden: 'inherited' }), Object.fromEntries(Object.entries(source()).reverse()), { extra: 'discard' });
+  const selected = selectIssuerRecord(input);
+  assert.deepEqual(selected, source());
+  assert.equal(JSON.stringify(selected), JSON.stringify(source()));
+  const inherited = Object.create({ holderName: 'INHERITED NAME', tokenSha256: SOURCE_HASH });
+  assert.deepEqual(selectIssuerRecord(inherited), {});
+  assert.deepEqual(selectIssuerRecord(null), {});
+});
+
+test('issuer setup capability creates only the authorized snapshot with an atomic first-write condition', async () => {
+  const writes = [];
+  const { handler } = capability({ storeFactory: async () => ({
+    async setJSON(key, record, options) { writes.push({ key, record, options }); return { modified: true }; },
+  }) });
+  const reordered = Object.fromEntries(Object.entries(source()).reverse());
+  const response = await handler(setupRequest({ body: { ...reordered, ignored: 'not persisted' } }));
+  assert.equal(response.status, 201);
+  assert.deepEqual(await response.json(), { ok: true });
+  assert.deepEqual(writes, [{ key: SOURCE_HASH, record: source(), options: { onlyIfNew: true } }]);
+});
+
+test('issuer setup capability rejects changed names, dates, states and other approved fields before storage', async () => {
+  const { handler, activity } = capability();
+  for (const changes of [
+    { holderName: 'DIFFERENT STUDENT' }, { validThrough: '2028-03-31' },
+    { status: 'revoked' }, { status: 'pending' }, { status: 'unknown' },
+    { enrollment: 'ANOTHER ENROLLMENT' }, { course: 'ANOTHER COURSE' },
+    { canonicalOrigin: 'https://another.netlify.app' }, { approvalRef: 'Different approval' },
+    { tokenSha256: 'a'.repeat(64) },
+  ]) await rejected(await handler(setupRequest({ body: source(changes) })), 403);
+  assert.equal(activity.opened, 0);
+});
+
+test('issuer setup capability cannot overwrite an existing or revoked record', async () => {
+  let stored;
+  const calls = [];
+  const { handler } = capability({ storeFactory: async () => ({
+    async setJSON(key, record, options) {
+      calls.push(options);
+      if (stored) return { modified: false };
+      stored = structuredClone(record);
+      return { modified: true };
+    },
+  }) });
+  assert.equal((await handler(setupRequest())).status, 201);
+  await rejected(await handler(setupRequest()), 409);
+  stored.status = 'revoked';
+  await rejected(await handler(setupRequest()), 409);
+  assert.equal(stored.status, 'revoked');
+  assert.deepEqual(calls, [{ onlyIfNew: true }, { onlyIfNew: true }, { onlyIfNew: true }]);
+});
+
+test('issuer setup capability expires exactly at its deadline before body or storage access', async () => {
+  for (const time of ['2026-11-13T16:00:00.000Z', '2026-11-13T16:00:00.001Z']) {
+    const { handler, activity } = capability({ now: () => new Date(time) });
+    const probe = unreadableBody({ authorization: `Bearer ${SETUP_KEY}` });
+    await rejected(await handler(probe.request), 401);
+    assert.equal(probe.state.reads, 0);
+    assert.equal(activity.opened, 0);
+  }
+  const { handler } = capability({ now: () => new Date('2026-11-13T15:59:59.999Z') });
+  assert.equal((await handler(setupRequest())).status, 201);
+});
+
+test('issuer setup capability fails closed for invalid configuration, invalid clocks or a shared master key', async () => {
+  for (const options of [
+    { setupRecordHash: 'invalid' }, { setupExpiresAt: null }, { setupExpiresAt: '13/11/2026' },
+    { setupExpiresAt: '2026-02-30T16:00:00Z' }, { setupExpiresAt: '2026-11-13T24:00:00Z' },
+    { now: () => new Date(NaN) }, { now() { throw Error('Clock unavailable'); } },
+    { expectedKeyHash: SETUP_HASH },
+  ]) {
+    const { handler, activity } = capability(options);
+    const probe = unreadableBody({ authorization: `Bearer ${SETUP_KEY}` });
+    await rejected(await handler(probe.request), 401);
+    assert.equal(probe.state.reads, 0);
+    assert.equal(activity.opened, 0);
+  }
+});
+
+test('issuer setup capability is rechecked after body processing and cannot outlive expiry', async () => {
+  let calls = 0;
+  const { handler, activity } = capability({ now: () => new Date(++calls === 1 ? '2026-11-13T15:59:59.999Z' : SETUP_EXPIRY) });
+  await rejected(await handler(setupRequest()), 401);
+  assert.equal(activity.opened, 0);
+});
+
+test('issuer setup capability cannot start a write after storage initialization crosses its deadline', async () => {
+  let clock = new Date('2026-11-13T15:59:59.999Z');
+  let writes = 0;
+  const { handler } = capability({
+    now: () => clock,
+    storeFactory: async () => {
+      await setImmediate();
+      clock = new Date(SETUP_EXPIRY);
+      return { async setJSON() { writes++; return { modified: true }; } };
+    },
+  });
+  await rejected(await handler(setupRequest()), 401);
+  assert.equal(writes, 0);
+});
+
+test('issuer setup capability still validates an exactly matched source and cannot claim unconfirmed storage writes', async () => {
+  const invalid = source({ issuerConfirmedAt: null });
+  const fingerprint = createHash('sha256').update(JSON.stringify(selectIssuerRecord(invalid))).digest('hex');
+  const badSource = capability({ setupRecordHash: fingerprint });
+  await rejected(await badSource.handler(setupRequest({ body: invalid })), 422);
+  assert.equal(badSource.activity.opened, 0);
+  for (const storeFactory of [
+    async () => { throw Error('Storage unavailable'); },
+    async () => ({ setJSON: async () => { throw Error('Write failed'); } }),
+    async () => ({ setJSON: async () => undefined }),
+    async () => ({ setJSON: async () => ({ modified: 'true' }) }),
+  ]) await rejected(await capability({ storeFactory }).handler(setupRequest()), 503);
+});
+
+test('issuer master key keeps ordinary updates independently of setup scope or expiration', async () => {
+  const writes = [];
+  const { handler } = capability({
+    setupExpiresAt: '2026-01-01T00:00:00Z',
+    storeFactory: async () => ({ async setJSON(key, record, ...options) { writes.push({ key, record, options }); return { modified: true }; } }),
+  });
+  const changed = source({ status: 'revoked', holderName: 'MASTER UPDATED NAME' });
+  const response = await handler(request({ body: changed }));
+  assert.equal(response.status, 201);
+  assert.deepEqual(writes, [{ key: SOURCE_HASH, record: changed, options: [] }]);
+  const unconfirmed = capability({ storeFactory: async () => ({ setJSON: async () => ({ modified: false }) }) });
+  await rejected(await unconfirmed.handler(request()), 503);
 });

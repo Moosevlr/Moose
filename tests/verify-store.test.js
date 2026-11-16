@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { setImmediate } from 'node:timers/promises';
 import { createStoredVerifyHandler } from '../netlify/functions/verify.mjs';
+import { createIssuerAdminHandler } from '../netlify/functions/issuer-admin.mjs';
 
 const TOKEN = Buffer.alloc(32, 87).toString('base64url');
 const TOKEN_HASH = createHash('sha256').update(TOKEN).digest('hex');
@@ -139,4 +140,70 @@ test('all stored response paths keep no-store, noindex and referrer protections'
     assert.equal(response.headers.get('referrer-policy'), 'no-referrer');
     assert.equal(response.headers.get('access-control-allow-origin'), null);
   }
+});
+
+test('issuer persistence and strong verification keep multiple credentials independent across revocation and expiry', async () => {
+  const master = Buffer.alloc(32, 77).toString('base64url');
+  const database = new Map();
+  const store = {
+    async get(key, options) {
+      assert.deepEqual(options, { type: 'json', consistency: 'strong' });
+      return database.has(key) ? structuredClone(database.get(key)) : null;
+    },
+    async setJSON(key, record) {
+      database.set(key, structuredClone(record));
+      return { modified: true };
+    },
+  };
+  let clock = NOW;
+  const issue = createIssuerAdminHandler({
+    expectedKeyHash: createHash('sha256').update(master).digest('hex'),
+    setupKeyHash: null, setupRecordHash: null, setupExpiresAt: null,
+    storeFactory: async () => store, now: () => clock,
+  });
+  const verify = createStoredVerifyHandler({ storeFactory: async () => store, now: () => clock });
+  const tokenB = Buffer.alloc(32, 90).toString('base64url');
+  const hashB = createHash('sha256').update(tokenB).digest('hex');
+  const recordA = source({ holderName: 'ALUNO A', enrollment: 'TEST-A' });
+  const recordB = source({ tokenSha256: hashB, holderName: 'ALUNO B', enrollment: 'TEST-B' });
+  const writeRequest = record => new Request('https://example.test/.netlify/functions/issuer-admin', {
+    method: 'POST', headers: { authorization: `Bearer ${master}`, 'content-type': 'application/json', origin: 'https://example.test' },
+    body: JSON.stringify(record),
+  });
+  for (const record of [recordA, recordB]) assert.equal((await issue(writeRequest(record))).status, 201);
+  assert.equal(database.size, 2);
+  const activeA = await (await verify(request())).json();
+  const activeB = await (await verify(request({ token: tokenB }))).json();
+  assert.deepEqual([activeA.status, activeA.enrollment, activeA.holderName], ['active', 'TEST-A', 'ALUNO A']);
+  assert.deepEqual([activeB.status, activeB.enrollment, activeB.holderName], ['active', 'TEST-B', 'ALUNO B']);
+  assert.equal((await issue(writeRequest({ ...recordA, status: 'revoked' }))).status, 201);
+  const revoked = await (await verify(request())).json();
+  assert.equal(revoked.status, 'revoked');
+  assert(!('holderName' in revoked));
+  assert.equal((await (await verify(request({ token: tokenB }))).json()).status, 'active');
+  clock = new Date('2027-04-01T03:00:00.000Z');
+  assert.equal((await (await verify(request())).json()).status, 'revoked');
+  assert.equal((await (await verify(request({ token: tokenB }))).json()).status, 'expired');
+  assert.equal(database.size, 2);
+});
+
+test('visitor verification is read-only and cannot register or promote a source through a POST', async () => {
+  let reads = 0;
+  let writes = 0;
+  const verify = createStoredVerifyHandler({
+    storeFactory: async () => ({
+      async get() { reads++; return source({ status: 'pending', issuerConfirmedAt: null }); },
+      async setJSON() { writes++; return { modified: true }; },
+    }),
+    now: () => NOW,
+  });
+  const attempt = new Request('https://example.test/api/verificar?token=' + TOKEN, {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(source()),
+  });
+  await expectMinimum(await verify(attempt), 405);
+  assert.equal(reads, 0);
+  assert.equal(writes, 0);
+  const result = await (await verify(request({ token: TOKEN, status: 'active' }))).json();
+  assert.equal(result.status, 'pending');
+  assert.equal(writes, 0);
 });

@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite';
-import { appendFile, mkdir, readFile } from 'node:fs/promises';
-import { randomUUID } from 'node:crypto';
+import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { randomUUID, createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { createVerifyHandler } from './netlify/functions/verify.mjs';
 import { createContactHandler } from './netlify/functions/contact.mjs';
 
@@ -54,16 +54,43 @@ function apiAdapter() {
 
 function buildMetadata() {
   let root;
+  let output;
   return {
     name: 'jcb-build-metadata', apply: 'build',
-    configResolved(config) { root = config.root; },
+    configResolved(config) { root = config.root; output = resolve(root, config.build.outDir); },
     generateBundle() {
       const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
       const supplied = process.env.COMMIT_REF || '';
       const commit = /^[a-f0-9]{40}$/i.test(supplied) ? supplied : null;
       this.emitFile({ type: 'asset', fileName: 'build-info.json', source: JSON.stringify({ app: 'JCB ENGENHARIA', version, commit }, null, 2) + '\n' });
     },
+    async writeBundle() {
+      const filename = join(output, 'preparar-carteirinha/index.html');
+      let html = await readFile(filename, 'utf8');
+      const bootstrap = /<script id="setup-bootstrap">([\s\S]*?)<\/script>/.exec(html)?.[1];
+      const entry = /<script\b[^>]*\bsrc="([^"]+)"[^>]*><\/script>/.exec(html);
+      if (!bootstrap || !entry || !entry[1].startsWith('/assets/')) throw new Error('Private preparation entry missing.');
+      const hash = value => `sha256-${createHash('sha256').update(value).digest('base64')}`;
+      const bootstrapHash = hash(bootstrap);
+      const entryHash = hash(await readFile(join(output, entry[1].slice(1))));
+      html = html.replace(entry[0], entry[0].replace('<script ', `<script integrity="${entryHash}" `))
+        .replace(/<link\b[^>]*\brel="modulepreload"[^>]*>/g, '');
+      await writeFile(filename, html);
+      const policy = `default-src 'none'; script-src '${bootstrapHash}' '${entryHash}' 'strict-dynamic'; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'`;
+      const headersFile = join(output, '_headers');
+      let headers = (await readFile(headersFile, 'utf8'))
+        .replace("script-src 'self';", `script-src 'self' '${bootstrapHash}';`)
+        .replace("img-src 'self' data:;", "img-src 'self' data: blob:;");
+      for (const path of ['/preparar-carteirinha', '/preparar-carteirinha/*']) {
+        headers += `\n${path}\n  Cache-Control: no-store\n  Referrer-Policy: no-referrer\n  X-Robots-Tag: noindex, nofollow, noarchive\n  Content-Security-Policy: ${policy}\n`;
+      }
+      await writeFile(headersFile, headers);
+    },
   };
 }
 
-export default defineConfig({ plugins: [apiAdapter(), buildMetadata()], build: { sourcemap: false } });
+export default defineConfig({ plugins: [apiAdapter(), buildMetadata()], build: {
+  sourcemap: false,
+  modulePreload: { polyfill: false },
+  rollupOptions: { input: { main: resolve('index.html'), issuer: resolve('preparar-carteirinha/index.html') } },
+} });

@@ -1,7 +1,8 @@
 import './styles.css';
 import './verification.css';
 import { company } from './company.js';
-import { renderHome, renderCourses, renderCourse, renderAbout, renderContact, renderPrivacy, renderNotFound } from './pages.js';
+import { renderHome, renderCourses, renderCourse, renderAbout, renderContact, renderPrivacy, renderNotFound, submitInterestSubmission } from './pages.js';
+import { validateContact } from './contact-validation.js';
 
 const app = document.querySelector('#app');
 const escape = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
@@ -55,7 +56,7 @@ async function loadVerification(token, version) {
 }
 
 function thankYou() {
-  return `<section class="section"><div class="container verification-container"><span class="status-pill status-active">INTERESSE REGISTRADO</span><h1>Obrigado pela<br>sua mensagem.</h1><p>Seu interesse foi registrado para atendimento pela JCB Engenharia. O envio não confirma matrícula ou reserva de vaga.</p><div class="button-row"><a class="button" href="/cursos">Conhecer os cursos</a><a class="text-link" href="/">Voltar ao início</a></div></div></section>`;
+  return `<section class="section"><div class="container verification-container"><span class="status-pill status-active">SOLICITAÇÃO ENVIADA</span><h1>Obrigado pela<br>sua mensagem.</h1><p>Sua solicitação foi enviada para atendimento pela JCB Engenharia. O envio não confirma matrícula ou reserva de vaga.</p><div class="button-row"><a class="button" href="/cursos">Conhecer os cursos</a><a class="text-link" href="/">Voltar ao início</a></div></div></section>`;
 }
 
 function render() {
@@ -76,7 +77,7 @@ function render() {
   else if (path === '/privacidade') { content = renderPrivacy(company); title = 'Privacidade'; }
   else if (path === '/validar') { content = verifierForm(); title = 'Validar carteirinha'; }
   else if (token !== null) { content = verificationLoading(); title = 'Consulta institucional'; }
-  else if (path === '/obrigado') { content = thankYou(); title = 'Interesse registrado'; }
+  else if (path === '/obrigado') { content = thankYou(); title = 'Solicitação enviada'; }
   else { content = renderNotFound(company); title = 'Página não encontrada'; }
   document.title = `${title} · JCB ENGENHARIA`;
   let robots = document.querySelector('meta[name="robots"]');
@@ -85,7 +86,7 @@ function render() {
   app.innerHTML = `${header(path)}<main id="conteudo" tabindex="-1">${content}</main>${footer()}`;
   if (path === '/contato') {
     const selected = new URLSearchParams(location.search).get('curso');
-    const select = document.querySelector('[name="course"]');
+    const select = document.querySelector('#interest-form [name="course"]');
     if (select && company.courses.some(course => course.slug === selected)) select.value = selected;
   }
   if (token !== null) void loadVerification(token, version);
@@ -123,6 +124,23 @@ document.addEventListener('keydown', event => {
   }
 });
 
+function markInterestFieldErrors(form, status, fields) {
+  const messages = [];
+  let firstInvalid = null;
+  for (const key of ['name', 'email', 'phone', 'course', 'message', 'consent']) {
+    if (typeof fields?.[key] !== 'string') continue;
+    messages.push(fields[key]);
+    const field = form.elements.namedItem(key);
+    if (field instanceof HTMLElement) {
+      field.setAttribute('aria-invalid', 'true');
+      field.setAttribute('aria-describedby', status.id);
+      firstInvalid ||= field;
+    }
+  }
+  status.textContent = messages.join(' ') || 'Confira os campos do formulário.';
+  return firstInvalid;
+}
+
 document.addEventListener('submit', async event => {
   const form = event.target;
   if (form.id === 'verification-form') {
@@ -138,7 +156,7 @@ document.addEventListener('submit', async event => {
     navigate(`/validar/${token}`);
     return;
   }
-  if (form.getAttribute('name') !== 'interesse') return;
+  if (form.id !== 'interest-form') return;
   event.preventDefault();
   if (!form.reportValidity()) return;
   const status = form.querySelector('.form-status');
@@ -151,30 +169,25 @@ document.addEventListener('submit', async event => {
   }
   const payload = Object.fromEntries(new FormData(form));
   payload.consent = form.elements.consent.checked;
+  const validation = validateContact(payload);
+  if (!validation.ok) {
+    markInterestFieldErrors(form, status, validation.fields)?.focus();
+    return;
+  }
+  if (validation.honeypot) {
+    status.textContent = 'Não foi possível enviar o formulário.';
+    return;
+  }
   button.disabled = true;
-  status.textContent = 'Registrando sua mensagem…';
+  status.textContent = 'Enviando sua mensagem…';
   try {
-    const response = await fetch('/api/contato', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    const result = await response.json();
-    if (response.status === 422 && result.fields && typeof result.fields === 'object') {
-      const messages = [];
-      for (const key of ['name', 'email', 'phone', 'course', 'message', 'consent']) {
-        if (typeof result.fields[key] !== 'string') continue;
-        messages.push(result.fields[key]);
-        const field = form.elements.namedItem(key);
-        if (field instanceof HTMLElement) {
-          field.setAttribute('aria-invalid', 'true');
-          field.setAttribute('aria-describedby', status.id);
-          firstInvalid ||= field;
-        }
-      }
-      throw new Error(messages.join(' ') || 'Confira os campos do formulário.');
-    }
-    if (response.status !== 201 || result.ok !== true) throw new Error(result.error || 'Não foi possível registrar sua mensagem.');
+    await submitInterestSubmission(validation.data);
     if (form.isConnected) navigate('/obrigado');
   } catch (error) {
     if (form.isConnected) {
-      status.textContent = `${error.message || 'O atendimento está temporariamente indisponível.'} Você também pode escrever para ${company.email}.`;
+      if (error.status === 422 && error.fields) firstInvalid = markInterestFieldErrors(form, status, error.fields);
+      else status.textContent = error.message || 'O atendimento está temporariamente indisponível.';
+      status.textContent += ` Você também pode escrever para ${company.email}.`;
       button.disabled = false;
       firstInvalid?.focus();
     }

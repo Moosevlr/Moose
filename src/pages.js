@@ -1,3 +1,5 @@
+import { validateContact } from './contact-validation.js';
+
 const escape = (value = '') => String(value ?? '').replace(/[&<>"']/g, character => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 })[character]);
@@ -104,7 +106,7 @@ export function renderContact(company) {
   ].join('');
   return `${breadcrumb('Contato')}${pageHero('VAMOS CONVERSAR', 'Seu desenvolvimento<br>merece <span>um próximo passo.</span>', 'Conte o que você busca. Nossa equipe poderá orientar você sobre os cursos, o conteúdo e as condições de participação.')}
     <section class="section"><div class="container contact-layout"><div class="contact-copy"><span class="icon-tile">${icon('message')}</span><h2>Comece com<br>uma conversa.</h2><p>Preencha o formulário e deixe sua dúvida ou seu interesse. Use um contato pelo qual possamos retornar.</p>${contactDetails ? `<div class="contact-details">${contactDetails}</div>` : '<p class="contact-form-note">O formulário ao lado é o canal para solicitar informações à instituição.</p>'}<div class="contact-privacy-note">${icon('check')}<p>Seus dados serão usados para atender sua solicitação. <a href="/privacidade">Conheça o aviso de privacidade.</a></p></div></div>
-    <form class="interest-form" name="interesse" method="POST" action="/api/contato"><div class="honeypot" aria-hidden="true"><label>Não preencha este campo<input name="website" tabindex="-1" autocomplete="off"></label></div><div class="form-heading"><p class="eyebrow">FALE COM A ${escape(company.name)}</p><h2>Qual é seu objetivo?</h2></div><div class="form-grid"><div class="field field--full"><label for="interest-name">Nome completo <span aria-hidden="true">*</span></label><input id="interest-name" name="name" autocomplete="name" required minlength="2" maxlength="120" placeholder="Como podemos chamar você?"></div><div class="field"><label for="interest-email">E-mail <span aria-hidden="true">*</span></label><input id="interest-email" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="voce@exemplo.com"></div><div class="field"><label for="interest-phone">Telefone <span class="field-optional">opcional</span></label><input id="interest-phone" name="phone" type="tel" autocomplete="tel" maxlength="32" placeholder="DDD e número"></div><div class="field field--full"><label for="interest-course">Interesse <span aria-hidden="true">*</span></label><select id="interest-course" name="course" required><option value="">Selecione uma opção</option>${coursesOf(company).map(course => `<option value="${escape(course.slug)}">${escape(course.title)}</option>`).join('')}<option value="informacoes-gerais">Informações gerais</option></select></div><div class="field field--full"><label for="interest-message">Mensagem <span aria-hidden="true">*</span></label><textarea id="interest-message" name="message" rows="5" required minlength="10" maxlength="4000" placeholder="Conte um pouco sobre o que você procura."></textarea></div></div><label class="consent-field"><input name="consent" type="checkbox" value="true" required><span>Li o <a href="/privacidade">aviso de privacidade</a> e autorizo o uso dos meus dados para receber retorno sobre esta solicitação.</span></label><button class="button" type="submit">Enviar meu interesse ${arrow}</button><p class="form-required">* Campos obrigatórios. Não inclua documentos pessoais ou dados sensíveis na mensagem.</p><p class="form-status" role="status" aria-live="polite"></p></form></div></section>`;
+    <form id="interest-form" class="interest-form" name="interesse" method="POST" action="/obrigado" data-netlify="true" netlify-honeypot="website"><input type="hidden" name="form-name" value="interesse"><div class="honeypot" aria-hidden="true"><label>Não preencha este campo<input name="website" tabindex="-1" autocomplete="off"></label></div><div class="form-heading"><p class="eyebrow">FALE COM A ${escape(company.name)}</p><h2>Qual é seu objetivo?</h2></div><div class="form-grid"><div class="field field--full"><label for="interest-name">Nome completo <span aria-hidden="true">*</span></label><input id="interest-name" name="name" autocomplete="name" required minlength="2" maxlength="120" placeholder="Como podemos chamar você?"></div><div class="field"><label for="interest-email">E-mail <span aria-hidden="true">*</span></label><input id="interest-email" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="voce@exemplo.com"></div><div class="field"><label for="interest-phone">Telefone <span class="field-optional">opcional</span></label><input id="interest-phone" name="phone" type="tel" autocomplete="tel" maxlength="32" placeholder="DDD e número"></div><div class="field field--full"><label for="interest-course">Interesse <span aria-hidden="true">*</span></label><select id="interest-course" name="course" required><option value="">Selecione uma opção</option>${coursesOf(company).map(course => `<option value="${escape(course.slug)}">${escape(course.title)}</option>`).join('')}<option value="informacoes-gerais">Informações gerais</option></select></div><div class="field field--full"><label for="interest-message">Mensagem <span aria-hidden="true">*</span></label><textarea id="interest-message" name="message" rows="5" required minlength="10" maxlength="4000" placeholder="Conte um pouco sobre o que você procura."></textarea></div></div><label class="consent-field"><input name="consent" type="checkbox" value="true" required><span>Li o <a href="/privacidade">aviso de privacidade</a> e autorizo o uso dos meus dados para receber retorno sobre esta solicitação.</span></label><button class="button" type="submit">Enviar meu interesse ${arrow}</button><p class="form-required">* Campos obrigatórios. Não inclua documentos pessoais ou dados sensíveis na mensagem.</p><p class="form-status" role="status" aria-live="polite"></p></form></div></section>`;
 }
 
 export function renderPrivacy(company) {
@@ -115,3 +117,45 @@ export function renderPrivacy(company) {
 export function renderNotFound() {
   return `<section class="section not-found"><div class="container"><p class="eyebrow">CAMINHO NÃO ENCONTRADO</p><span class="not-found-code" aria-hidden="true">404</span><h1>Vamos voltar<br>ao ponto de partida?</h1><p>Esta página não está disponível. Você pode conhecer os cursos ou continuar pela página inicial.</p><div class="button-row"><a class="button" href="/">Página inicial ${arrow}</a><a class="button button--outline" href="/cursos">Conhecer os cursos</a></div></div></section>`;
 }
+/** Netlify Forms requires a URL-encoded POST to the site, including form-name. */
+export function encodeInterestSubmission(data) {
+  const body = new URLSearchParams({ 'form-name': 'interesse' });
+  for (const field of ['name', 'email', 'phone', 'course', 'message', 'website']) {
+    body.set(field, typeof data[field] === 'string' ? data[field] : '');
+  }
+  body.set('consent', data.consent === true ? 'true' : 'false');
+  return body.toString();
+}
+
+export async function submitInterestSubmission(data, fetchImpl = globalThis.fetch) {
+  const validation = validateContact(data);
+  if (!validation.ok) {
+    const error = new Error('Confira os campos do formulário.');
+    error.status = 422;
+    error.fields = validation.fields;
+    throw error;
+  }
+  if (validation.honeypot) {
+    throw new Error('Não foi possível enviar o formulário.');
+  }
+  const response = await fetchImpl('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+    body: encodeInterestSubmission(validation.data),
+  });
+  if (!response.ok) {
+    const error = new Error('Não foi possível enviar sua mensagem. Tente novamente.');
+    error.status = response.status;
+    // Keep field feedback when an endpoint supplies it; a successful native
+    // Forms response is HTML and must never depend on a JSON success payload.
+    if (response.status === 422 && /application\/json/i.test(response.headers?.get('content-type') || '')) {
+      try {
+        const result = await response.json();
+        if (result?.fields && typeof result.fields === 'object' && !Array.isArray(result.fields)) error.fields = result.fields;
+      } catch { /* Use the safe generic error for malformed error responses. */ }
+    }
+    throw error;
+  }
+  return response;
+}
+
