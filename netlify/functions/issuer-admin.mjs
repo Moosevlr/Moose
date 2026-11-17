@@ -3,6 +3,8 @@ import { ISSUER_ADMIN_SHA256 } from '../../src/server-trust.js';
 import { SETUP_KEY_SHA256, SETUP_RECORD_SHA256, SETUP_EXPIRES_AT } from '../../src/setup-trust.js';
 import { evaluateCredential } from '../../src/credential-status.js';
 import { ISSUER_RECORD_FIELDS, selectIssuerRecord } from '../../src/issuer-record.js';
+import { enrollmentIndexKey } from '../../src/enrollment-index.js';
+import { INITIAL_ENROLLMENT_SHA256, INITIAL_CREDENTIAL_SHA256 } from '../../src/initial-enrollment.js';
 
 const validHash = (value) => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 const matchesHash = (digest, expected) => validHash(expected) && timingSafeEqual(digest, Buffer.from(expected, 'hex'));
@@ -35,6 +37,7 @@ export function createIssuerAdminHandler({
   setupKeyHash = SETUP_KEY_SHA256,
   setupRecordHash = SETUP_RECORD_SHA256,
   setupExpiresAt = SETUP_EXPIRES_AT,
+  initialEnrollment = { enrollmentSha256: INITIAL_ENROLLMENT_SHA256, tokenSha256: INITIAL_CREDENTIAL_SHA256 },
   storeFactory = openStore,
   now = () => new Date(),
 } = {}) {
@@ -78,16 +81,41 @@ export function createIssuerAdminHandler({
       const checkedAt = now();
       if (setup && !liveAt(checkedAt, setupDeadline)) return json(401, { ok: false });
       if (evaluateCredential(record, checkedAt).status === 'invalid') return json(422, { ok: false });
+      const key = record.tokenSha256.toLowerCase();
+      // Revoking must remain possible even if an old index is missing or bad.
+      const indexKey = master && record.status === 'revoked' ? null : enrollmentIndexKey(record.enrollment);
+      if (!indexKey && record.status === 'active') return json(422, { ok: false });
+      // Keep the first imported number reserved even before its private index
+      // exists. This mapping alone never creates or validates a credential.
+      if (indexKey && indexKey === `enrollments/${initialEnrollment?.enrollmentSha256}` &&
+          key !== initialEnrollment?.tokenSha256) return json(409, { ok: false });
       try {
         const store = await storeFactory();
-        // Lazy storage initialization may outlive the setup grant. Authorize
-        // again immediately before starting the conditional write.
+        // Do not begin an index reservation after an expired setup grant.
         if (setup) {
           try {
             if (!liveAt(now(), setupDeadline)) return json(401, { ok: false });
           } catch { return json(401, { ok: false }); }
         }
-        const key = record.tokenSha256.toLowerCase();
+        if (indexKey) {
+          // Reserving first prevents two credentials from claiming one number.
+          // A failed later write can leave an inert reservation; its owner can
+          // retry, and verification still requires the authoritative record.
+          const reservation = await store.setJSON(indexKey, { schemaVersion: 1, tokenSha256: key }, { onlyIfNew: true });
+          if (reservation?.modified === false) {
+            const existing = await store.get(indexKey, { type: 'json', consistency: 'strong' });
+            const indexedHash = typeof existing?.tokenSha256 === 'string' ? existing.tokenSha256.toLowerCase() : null;
+            if (existing?.schemaVersion !== 1 || !validHash(indexedHash)) return json(503, { ok: false });
+            if (indexedHash !== key) return json(409, { ok: false });
+          } else if (reservation?.modified !== true) return json(503, { ok: false });
+        }
+        // Index writes/reads can outlive the grant too. Authorize immediately
+        // before the conditional record write, without another awaited step.
+        if (setup) {
+          try {
+            if (!liveAt(now(), setupDeadline)) return json(401, { ok: false });
+          } catch { return json(401, { ok: false }); }
+        }
         const result = setup
           ? await store.setJSON(key, record, { onlyIfNew: true })
           : await store.setJSON(key, record);

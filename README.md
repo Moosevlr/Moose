@@ -47,10 +47,10 @@ npm run dev -- --port 4280 --strictPort
 
 Em execução cloud, pode-se acrescentar `--cache /workspace/scratch/npm-cache` à instalação. Build e testes funcionam sem `private/`; o adaptador local lê um eventual registro privado somente ao iniciar desenvolvimento/preview. Dados sintéticos dos testes não são registros reais da instituição.
 
-Estado verificado em 16/11/2026:
+Estado verificado em 17/11/2026:
 
-- **72/72 testes Node aprovados**, incluindo QR decodificado independentemente, corte de validade, leitura forte, múltiplos IDs independentes, revogação, impedimento de escrita por visitante, setup condicional e expiração após storage lento.
-- Exportação limpa sem `private/`: **72/72 testes e build aprovados**. A inspeção dos 40 arquivos exportados não encontrou os valores reais do QR/token, das chaves, do hash do token ou da matrícula.
+- **91/91 testes Node aprovados**, incluindo QR decodificado independentemente, corte de validade, leitura forte, múltiplos IDs independentes, revogação, impedimento de escrita por visitante, setup condicional e expiração após storage lento.
+- Exportação limpa sem `private/`: **91/91 testes e build aprovados**. A inspeção da exportação não encontrou o código real do QR, as chaves privadas ou a matrícula em texto. O módulo de migração contém somente dois digests de localização, restritos ao servidor; o bundle público não contém esses digests.
 - QA local do emissor: **21/21 verificações aprovadas** para CSP/SRI, remoção do fragmento, rejeição de divergências, fluxo desktop `201` e mobile `409`, QR e impressão. Essas respostas de teste não comprovam gravação no Blobs de produção.
 - QA atual de navegação, layout e formulário: **21 rotas e 26 interações aprovadas**, em 1440/350/390 px. Foram interceptados nove POSTs com respostas 503/422/200, sem mensagem real enviada; zero erros de página, falhas de requests ou recursos externos. Blueprint de Forms, pré-seleção do curso, bloqueio do honeypot e prevenção de envio duplicado foram conferidos. As contagens antigas não são reutilizadas.
 - E-mail e persistência hospedada: **pendentes de confirmação remota**.
@@ -78,3 +78,13 @@ O runtime pode preservar a URL original de uma regra de redirecionamento. A vers
 A função agora aceita o código tanto no caminho original quanto na query da função, rejeitando códigos repetidos, malformados ou conflitantes antes de consultar o armazenamento. A interface pública e a página reservada usam a função direta na mesma origem. O adaptador local preserva a URL original, sem fabricar a query. Foram acrescentadas regressões dos formatos de URL e uma conferência do resultado no navegador em 390 e 1440 px.
 
 A página reservada informa o HTTP e um diagnóstico limitado em caso de falha; não mostra corpo da resposta, dados privados, chave ou código de consulta. A liberação do cartão continua exigindo um registro ativo e a correspondência de todos os campos aprovados.
+
+## Consulta pela matrícula — versão 1.2.0
+
+A aba `/validar` aceita a matrícula impressa no cartão, o código opaco e o link do QR Code. A matrícula é normalizada para maiúsculas, desconsiderando espaços nas extremidades. Todos os formatos apresentam o mesmo resultado a partir do registro autoritativo, com uma ação para iniciar nova consulta.
+
+O armazenamento privado mantém um índice `enrollments/<SHA-256 da matrícula normalizada>` apontando para o digest do registro. O cadastro reserva esse índice condicionalmente antes de gravar o registro: colisões falham sem sobrescrever outro aluno, e uma reserva órfã não valida uma carteirinha. A consulta lê índice e registro com consistência forte, confere a matrícula e avalia a situação atual. O índice não armazena uma situação ativa em cache. Revogações master continuam possíveis sem depender do índice. Visitantes não escrevem ou listam registros.
+
+Para a primeira carteirinha, criada antes desse índice, `src/initial-enrollment.js` fornece somente dois digests de localização. Não incorpora matrícula em texto, titular, token de consulta, validade ou estado. Mesmo nesse caso a consulta depende do registro real no armazenamento privado: inexistência, revogação e expiração não são substituídas por uma resposta positiva.
+
+Validação: 91 testes Node; 21 verificações locais da consulta manual em 1440/350/390 px, comparando matrícula, código e link/rota do QR, incluindo desconhecido, indisponibilidade e revogação. A equivalência do primeiro registro sem índice foi conferida localmente sem escrita remota. A entrega remota continua dependendo do deploy Netlify, cujo acesso direto está bloqueado neste executor.

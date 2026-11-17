@@ -1,14 +1,14 @@
 {
   "schemaVersion": 2,
-  "updatedOn": "2026-11-16",
+  "updatedOn": "2026-11-17",
   "scope": "Current local source validation; production verification is tracked separately.",
   "unit": {
     "status": "passed",
     "command": "npm test",
-    "passed": 72,
+    "passed": 91,
     "failed": 0,
     "skipped": 0,
-    "evidence": "/workspace/scratch/jcb-review/route-fix-unit-tests.log",
+    "evidence": "/workspace/scratch/jcb-review/clean-unit-tests.log",
     "coverage": [
       "server-date validity including the Sao Paulo end-of-day boundary",
       "revocation and pending status precedence",
@@ -18,14 +18,15 @@
       "setup expiry before body, after body and after slow storage initialization",
       "native Netlify Forms submission configuration",
       "independent QR decoding",
-      "original and rewritten verification URLs, including conflicting-code rejection before storage"
+      "original and rewritten verification URLs, including conflicting-code rejection before storage",
+      "typed enrollment/QR parity, private index reservation collisions and recovery, first-record migration, no listing or visitor writes"
     ]
   },
   "cleanExport": {
     "status": "passed",
     "privateDirectoryIncluded": false,
     "unit": {
-      "passed": 72,
+      "passed": 91,
       "failed": 0
     },
     "build": "passed",
@@ -35,12 +36,14 @@
     ],
     "secretScan": {
       "status": "passed_reported_by_release_coordinator",
-      "files": 40,
+      "files": 44,
       "realQrTokenFound": false,
       "masterKeyFound": false,
       "setupKeyFound": false,
-      "realTokenDigestFound": false,
-      "realEnrollmentFound": false
+      "realTokenDigestFound": true,
+      "realEnrollmentFound": false,
+      "realTokenDigestScope": "Server-only migration lookup, two digests without identity, raw code, record data or status",
+      "clientBundleContainsLookupDigests": false
     }
   },
   "browser": {
@@ -97,6 +100,26 @@
       "notes": [
         "POST responses were intercepted locally; this does not prove hosted Forms processing or inbox delivery.",
         "Historical checks of the legacy custom contact API do not validate the current Forms flow."
+      ]
+    },
+    "manualVerification": {
+      "status": "passed_local",
+      "passed": 21,
+      "failed": 0,
+      "viewports": [
+        1440,
+        350,
+        390
+      ],
+      "evidence": "/workspace/scratch/jcb-manual-verification-review/report.json",
+      "scope": "Compiled site with intercepted local fixture API responses; no hosted writes",
+      "checks": [
+        "printed enrollment, raw code and QR URL/route share the same status and five public fields",
+        "case and surrounding whitespace normalization",
+        "new consultation clears previous result",
+        "invalid input and foreign URL make no requests",
+        "404, 503 and revoked results never show active or private identity",
+        "no overflow or unexpected browser errors"
       ]
     }
   },
@@ -247,5 +270,27 @@
     },
     "hostedCauseConfirmed": false,
     "diagnosticsExcludePrivateValues": true
+  },
+  "version": "1.2.0",
+  "manualEnrollment": {
+    "lookup": "Strong private index by normalized enrollment digest, followed by authoritative record and status verification",
+    "preIndexMigration": "Server-only digests locate the existing first record; no embedded status, identity or record",
+    "recordMissingCanBecomeValid": false,
+    "visitorsCanWriteOrList": false,
+    "enrollmentUniqueReservation": true,
+    "revocationIndependentOfIndex": true,
+    "initialRecordParityEvidence": "/workspace/scratch/jcb-review/manual-first-record-parity.json",
+    "hostedManualLookupConfirmed": false
+  },
+  "functionPackaging": {
+    "package": "@netlify/zip-it-and-ship-it@16.6.0",
+    "functions": [
+      "contact",
+      "issuer-admin",
+      "verify"
+    ],
+    "runtimeAPIVersion": 2,
+    "noPrivateRecordOrRawTokenImported": true,
+    "offlineOnly": true
   }
 }

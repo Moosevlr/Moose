@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { setImmediate } from 'node:timers/promises';
 import { createIssuerAdminHandler } from '../netlify/functions/issuer-admin.mjs';
 import { selectIssuerRecord } from '../src/issuer-record.js';
+import { enrollmentIndexKey } from '../src/enrollment-index.js';
 
 // Test-only keys and records; no issuer key, bearer token or local record is read.
 const KEY = Buffer.alloc(32, 73).toString('base64url');
@@ -33,18 +34,31 @@ function request({ method = 'POST', authorization = `Bearer ${KEY}`, origin = OR
 
 function setup(overrides = {}) {
   const writes = [];
+  const indexWrites = [];
+  const reads = [];
+  const entries = new Map();
   const activity = { opened: 0 };
   const handler = createIssuerAdminHandler({
     expectedKeyHash: KEY_HASH,
     setupKeyHash: null, setupRecordHash: null, setupExpiresAt: null,
+    initialEnrollment: null,
     now: () => NOW,
     storeFactory: async () => {
       activity.opened++;
-      return { async setJSON(key, record) { writes.push({ key, record }); return { modified: true }; } };
+      return {
+        async setJSON(key, record, options) {
+          if (key.startsWith('enrollments/')) indexWrites.push({ key, record, options });
+          if (options?.onlyIfNew && entries.has(key)) return { modified: false };
+          entries.set(key, structuredClone(record));
+          if (!key.startsWith('enrollments/')) writes.push({ key, record });
+          return { modified: true };
+        },
+        async get(key, options) { reads.push({ key, options }); return entries.get(key) ?? null; },
+      };
     },
     ...overrides,
   });
-  return { handler, writes, activity };
+  return { handler, writes, indexWrites, reads, entries, activity };
 }
 
 async function rejected(response, status) {
@@ -190,15 +204,26 @@ test('issuer admin source pending or revoked status is not replaced by a query o
   }
 });
 
-test('issuer admin confirms success only after the storage write commits', async () => {
-  let release;
-  const gate = new Promise(resolve => { release = resolve; });
+test('issuer admin confirms success only after both index reservation and record writes commit', async () => {
+  let reserve;
+  let commit;
+  const indexGate = new Promise(resolve => { reserve = resolve; });
+  const recordGate = new Promise(resolve => { commit = resolve; });
+  const calls = [];
   let settled = false;
-  const { handler } = setup({ storeFactory: async () => ({ setJSON: () => gate }) });
+  const { handler } = setup({ storeFactory: async () => ({ setJSON(key) {
+    calls.push(key);
+    return key.startsWith('enrollments/') ? indexGate : recordGate;
+  } }) });
   const pending = handler(request()).then(response => { settled = true; return response; });
   await setImmediate();
   assert.equal(settled, false);
-  release({ modified: true });
+  assert.deepEqual(calls, [enrollmentIndexKey(source().enrollment)]);
+  reserve({ modified: true });
+  await setImmediate();
+  assert.equal(settled, false);
+  assert.deepEqual(calls, [enrollmentIndexKey(source().enrollment), SOURCE_HASH]);
+  commit({ modified: true });
   const response = await pending;
   assert.equal(response.status, 201);
   assert.deepEqual(await response.json(), { ok: true });
@@ -254,7 +279,10 @@ test('issuer setup capability creates only the authorized snapshot with an atomi
   const response = await handler(setupRequest({ body: { ...reordered, ignored: 'not persisted' } }));
   assert.equal(response.status, 201);
   assert.deepEqual(await response.json(), { ok: true });
-  assert.deepEqual(writes, [{ key: SOURCE_HASH, record: source(), options: { onlyIfNew: true } }]);
+  assert.deepEqual(writes, [
+    { key: enrollmentIndexKey(source().enrollment), record: { schemaVersion: 1, tokenSha256: SOURCE_HASH }, options: { onlyIfNew: true } },
+    { key: SOURCE_HASH, record: source(), options: { onlyIfNew: true } },
+  ]);
 });
 
 test('issuer setup capability rejects changed names, dates, states and other approved fields before storage', async () => {
@@ -271,14 +299,21 @@ test('issuer setup capability rejects changed names, dates, states and other app
 
 test('issuer setup capability cannot overwrite an existing or revoked record', async () => {
   let stored;
+  const indices = new Map();
   const calls = [];
   const { handler } = capability({ storeFactory: async () => ({
     async setJSON(key, record, options) {
+      if (key.startsWith('enrollments/')) {
+        if (indices.has(key)) return { modified: false };
+        indices.set(key, record);
+        return { modified: true };
+      }
       calls.push(options);
       if (stored) return { modified: false };
       stored = structuredClone(record);
       return { modified: true };
     },
+    async get(key) { return indices.get(key); },
   }) });
   assert.equal((await handler(setupRequest())).status, 201);
   await rejected(await handler(setupRequest()), 409);
@@ -363,4 +398,180 @@ test('issuer master key keeps ordinary updates independently of setup scope or e
   assert.deepEqual(writes, [{ key: SOURCE_HASH, record: changed, options: [] }]);
   const unconfirmed = capability({ storeFactory: async () => ({ setJSON: async () => ({ modified: false }) }) });
   await rejected(await unconfirmed.handler(request()), 503);
+});
+
+test('issuer admin reserves a normalized enrollment before its record, with only a lowercase digest in the index', async () => {
+  const calls = [];
+  const { handler } = setup({ storeFactory: async () => ({ async setJSON(key, value, options) {
+    calls.push({ key, value, options });
+    return { modified: true };
+  } }) });
+  const record = source({ enrollment: '  test-admin-0001  ', tokenSha256: SOURCE_HASH.toUpperCase() });
+  assert.equal((await handler(request({ body: record }))).status, 201);
+  assert.deepEqual(calls, [
+    { key: enrollmentIndexKey('TEST-ADMIN-0001'), value: { schemaVersion: 1, tokenSha256: SOURCE_HASH }, options: { onlyIfNew: true } },
+    { key: SOURCE_HASH, value: record, options: undefined },
+  ]);
+});
+
+test('issuer admin strongly reads an existing reservation and only reuses the same credential binding', async () => {
+  const indexKey = enrollmentIndexKey(source().enrollment);
+  for (const tokenSha256 of [SOURCE_HASH, SOURCE_HASH.toUpperCase(), 'a'.repeat(64)]) {
+    const { handler, entries, reads, writes } = setup();
+    entries.set(indexKey, { schemaVersion: 1, tokenSha256 });
+    const response = await handler(request());
+    if (tokenSha256.toLowerCase() === SOURCE_HASH) {
+      assert.equal(response.status, 201);
+      assert.equal(writes.length, 1);
+    } else {
+      await rejected(response, 409);
+      assert.equal(writes.length, 0);
+    }
+    assert.deepEqual(reads, [{ key: indexKey, options: { type: 'json', consistency: 'strong' } }]);
+    assert.deepEqual(entries.get(indexKey), { schemaVersion: 1, tokenSha256 });
+  }
+});
+
+test('issuer admin never writes a record when its existing index is missing, malformed or unreadable', async () => {
+  const indexKey = enrollmentIndexKey(source().enrollment);
+  for (const existing of [null, false, [], {}, { schemaVersion: 2, tokenSha256: SOURCE_HASH }, { schemaVersion: 1 }, { schemaVersion: 1, tokenSha256: 'invalid' }]) {
+    const { handler, entries, writes } = setup();
+    entries.set(indexKey, existing);
+    await rejected(await handler(request()), 503);
+    assert.equal(writes.length, 0);
+  }
+  const keys = [];
+  const { handler } = setup({ storeFactory: async () => ({
+    async setJSON(key) { keys.push(key); return { modified: false }; },
+    async get() { throw Error('PRIVATE INDEX FAILURE'); },
+  }) });
+  await rejected(await handler(request()), 503);
+  assert.deepEqual(keys, [indexKey]);
+});
+
+test('issuer admin fails closed for unconfirmed reservations and record commits', async () => {
+  for (const result of [undefined, null, { modified: 'true' }]) {
+    const calls = [];
+    const { handler } = setup({ storeFactory: async () => ({ async setJSON(key) {
+      calls.push(key);
+      return result;
+    } }) });
+    await rejected(await handler(request()), 503);
+    assert.deepEqual(calls, [enrollmentIndexKey(source().enrollment)]);
+  }
+  for (const result of [undefined, null, { modified: false }, { modified: 'true' }]) {
+    const calls = [];
+    const { handler } = setup({ storeFactory: async () => ({ async setJSON(key) {
+      calls.push(key);
+      return key.startsWith('enrollments/') ? { modified: true } : result;
+    } }) });
+    await rejected(await handler(request()), 503);
+    assert.deepEqual(calls, [enrollmentIndexKey(source().enrollment), SOURCE_HASH]);
+  }
+});
+
+test('issuer admin recovers an orphan reservation on retry without transferring it to another credential', async () => {
+  const entries = new Map();
+  const reads = [];
+  let recordAttempts = 0;
+  const { handler } = setup({ storeFactory: async () => ({
+    async setJSON(key, value, options) {
+      if (options?.onlyIfNew && entries.has(key)) return { modified: false };
+      if (!key.startsWith('enrollments/') && ++recordAttempts === 1) throw Error('Synthetic interrupted record write');
+      entries.set(key, structuredClone(value));
+      return { modified: true };
+    },
+    async get(key, options) { reads.push({ key, options }); return entries.get(key) ?? null; },
+  }) });
+  await rejected(await handler(request()), 503);
+  assert.equal(entries.size, 1);
+  assert.equal(entries.has(SOURCE_HASH), false);
+  assert.equal((await handler(request())).status, 201);
+  assert.equal(entries.size, 2);
+  const original = structuredClone(entries.get(SOURCE_HASH));
+  await rejected(await handler(request({ body: source({ tokenSha256: 'b'.repeat(64), enrollment: '  test-admin-0001 ' }) })), 409);
+  assert.equal(recordAttempts, 2);
+  assert.deepEqual(entries.get(SOURCE_HASH), original);
+  assert.equal(reads.every(read => read.options.consistency === 'strong'), true);
+});
+
+test('issuer admin concurrent credentials cannot claim the same enrollment', async () => {
+  const { handler, entries, writes } = setup();
+  const competingHash = 'c'.repeat(64);
+  const responses = await Promise.all([
+    handler(request()),
+    handler(request({ body: source({ tokenSha256: competingHash, enrollment: 'test-admin-0001' }) })),
+  ]);
+  assert.deepEqual(responses.map(response => response.status).sort(), [201, 409]);
+  assert.equal(writes.length, 1);
+  const binding = entries.get(enrollmentIndexKey(source().enrollment));
+  assert.equal(entries.has(binding.tokenSha256), true);
+  assert.equal(entries.size, 2);
+});
+
+test('issuer admin protects the initial imported enrollment before any index exists', async () => {
+  const indexKey = enrollmentIndexKey(source().enrollment);
+  const initialEnrollment = { enrollmentSha256: indexKey.slice('enrollments/'.length), tokenSha256: SOURCE_HASH };
+  const { handler, activity, writes } = setup({ initialEnrollment });
+  await rejected(await handler(request({ body: source({ tokenSha256: 'd'.repeat(64), enrollment: ' test-admin-0001 ' }) })), 409);
+  assert.equal(activity.opened, 0);
+  assert.equal(writes.length, 0);
+  assert.equal((await handler(request())).status, 201);
+  assert.equal((await handler(request({ body: source({ tokenSha256: 'd'.repeat(64), enrollment: 'OTHER-NUMBER' }) }))).status, 201);
+});
+
+test('issuer master can revoke with or without enrollment even when an old index is unusable', async () => {
+  for (const enrollment of [undefined, source().enrollment]) {
+    const calls = [];
+    const indexKey = enrollmentIndexKey(source().enrollment);
+    const { handler } = setup({
+      initialEnrollment: { enrollmentSha256: indexKey.slice('enrollments/'.length), tokenSha256: 'e'.repeat(64) },
+      storeFactory: async () => ({
+        async setJSON(key, record, ...options) {
+          assert.equal(key.startsWith('enrollments/'), false);
+          calls.push({ key, record, options });
+          return { modified: true };
+        },
+        async get() { throw Error('Revocation must not require the index'); },
+      }),
+    });
+    const record = source({ status: 'revoked', enrollment });
+    assert.equal((await handler(request({ body: record }))).status, 201);
+    assert.deepEqual(calls, [{ key: SOURCE_HASH, record: selectIssuerRecord(JSON.parse(JSON.stringify(record))), options: [] }]);
+  }
+});
+
+test('issuer admin rejects active numbers outside the lookup format before storage', async () => {
+  const { handler, activity } = setup();
+  for (const enrollment of ['AB', 'A'.repeat(41), 'NOT A CODE', '<INVALID>']) {
+    await rejected(await handler(request({ body: source({ enrollment }) })), 422);
+  }
+  assert.equal(activity.opened, 0);
+});
+
+test('issuer setup deadline is rechecked after asynchronous index reservation or strong read', async () => {
+  for (const existingIndex of [false, true]) {
+    let clock = new Date('2026-11-13T15:59:59.999Z');
+    const writes = [];
+    const { handler } = capability({
+      now: () => clock,
+      storeFactory: async () => ({
+        async setJSON(key) {
+          writes.push(key);
+          assert.equal(key.startsWith('enrollments/'), true);
+          if (existingIndex) return { modified: false };
+          await setImmediate();
+          clock = new Date(SETUP_EXPIRY);
+          return { modified: true };
+        },
+        async get() {
+          await setImmediate();
+          clock = new Date(SETUP_EXPIRY);
+          return { schemaVersion: 1, tokenSha256: SOURCE_HASH };
+        },
+      }),
+    });
+    await rejected(await handler(setupRequest()), 401);
+    assert.deepEqual(writes, [enrollmentIndexKey(source().enrollment)]);
+  }
 });

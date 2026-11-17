@@ -187,7 +187,8 @@ test('issuer persistence and strong verification keep multiple credentials indep
       assert.deepEqual(options, { type: 'json', consistency: 'strong' });
       return database.has(key) ? structuredClone(database.get(key)) : null;
     },
-    async setJSON(key, record) {
+    async setJSON(key, record, options) {
+      if (options?.onlyIfNew && database.has(key)) return { modified: false };
       database.set(key, structuredClone(record));
       return { modified: true };
     },
@@ -208,7 +209,7 @@ test('issuer persistence and strong verification keep multiple credentials indep
     body: JSON.stringify(record),
   });
   for (const record of [recordA, recordB]) assert.equal((await issue(writeRequest(record))).status, 201);
-  assert.equal(database.size, 2);
+  assert.equal([...database.keys()].filter(key => /^[a-f0-9]{64}$/.test(key)).length, 2);
   const activeA = await (await verify(new Request(`https://example.test/api/verificar/${TOKEN}`))).json();
   const activeB = await (await verify(request({ token: tokenB }))).json();
   assert.deepEqual([activeA.status, activeA.enrollment, activeA.holderName], ['active', 'TEST-A', 'ALUNO A']);
@@ -221,7 +222,7 @@ test('issuer persistence and strong verification keep multiple credentials indep
   clock = new Date('2027-04-01T03:00:00.000Z');
   assert.equal((await (await verify(request())).json()).status, 'revoked');
   assert.equal((await (await verify(request({ token: tokenB }))).json()).status, 'expired');
-  assert.equal(database.size, 2);
+  assert.equal([...database.keys()].filter(key => /^[a-f0-9]{64}$/.test(key)).length, 2);
 });
 
 test('visitor verification is read-only and cannot register or promote a source through a POST', async () => {
